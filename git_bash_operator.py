@@ -41,7 +41,7 @@ with DAG(
 
     # [START howto_operator_bash]
     run_this = BashOperator(
-        task_id='run_after_loop',
+        task_id='run_after_loop_edit',
         bash_command='echo 1',
     )
     # [END howto_operator_bash]
