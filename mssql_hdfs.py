@@ -15,26 +15,7 @@ with DAG(
     # [START howto_operator_bash]
     create_hdfs_config = BashOperator(
         task_id='create_hdfs_config',
-        bash_command="ls /usr/local/tmp/",
-        executor_config={
-    "KubernetesExecutor": {
-      "volumes": [
-        {
-          "name": "my-volume",
-          "persistentVolumeClaim":
-            {
-              "claimName": "airflow-test-kub-exec-logs"
-            }
-        }
-      ],
-      "volume_mounts": [
-        {
-          "name": "my-volume",
-          "mountPath": "/usr/local/tmp"
-        }
-      ]
-    }
-  },
+        bash_command="ls /usr/local/tmp/",        
     )
     dump_hdfs_config = BashOperator(
         task_id='dump_hdfs_config',
