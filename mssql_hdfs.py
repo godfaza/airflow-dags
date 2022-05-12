@@ -15,11 +15,30 @@ with DAG(
     # [START howto_operator_bash]
     create_hdfs_config = BashOperator(
         task_id='create_hdfs_config',
-        bash_command="echo ABCSDSDSDS > ~/.hdfscli.cfg && cat ~/.hdfscli.cfg",
+        bash_command="cat /usr/local/tmp/docker-src/hdfs_move.py",
     )
     dump_hdfs_config = BashOperator(
         task_id='dump_hdfs_config',
         bash_command='cat ~/.hdfscli.cfg',
+          executor_config={
+    "KubernetesExecutor": {
+      "volumes": [
+        {
+          "name": "my-volume",
+          "persistentVolumeClaim":
+            {
+              "claimName": "airflow-test-kub-exec-logs"
+            }
+        }
+      ],
+      "volume_mounts": [
+        {
+          "name": "my-volume",
+          "mountPath": "/usr/local/tmp"
+        }
+      ]
+    }
+  },
     )  
     query_db = BashOperator(
         task_id='query_db',
