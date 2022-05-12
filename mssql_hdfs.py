@@ -15,7 +15,7 @@ with DAG(
     # [START howto_operator_bash]
     create_hdfs_config = BashOperator(
         task_id='create_hdfs_config',
-        bash_command='echo "[global]
+        bash_command='echo [global]
         default.alias = dev
 
         [dev.alias]
