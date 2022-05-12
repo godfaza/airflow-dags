@@ -16,11 +16,7 @@ with DAG(
     create_hdfs_config = BashOperator(
         task_id='create_hdfs_config',
         bash_command="ls -la /usr/local/tmp/",
-    )
-    dump_hdfs_config = BashOperator(
-        task_id='dump_hdfs_config',
-        bash_command='cat ~/.hdfscli.cfg',
-          executor_config={
+        executor_config={
     "KubernetesExecutor": {
       "volumes": [
         {
@@ -39,7 +35,11 @@ with DAG(
       ]
     }
   },
-    )  
+    )
+    dump_hdfs_config = BashOperator(
+        task_id='dump_hdfs_config',
+        bash_command='cat ~/.hdfscli.cfg',
+            )  
     query_db = BashOperator(
         task_id='query_db',
         bash_command='/opt/mssql-tools18/bin/sqlcmd -S 192.168.10.39 -d MIP_UtilizeOutbound_Main_Dev_Current -U userdb -P qwerty1 -C -Q "SELECT ID,CODE FROM dbo.Country" -W -w 1024  -I',
