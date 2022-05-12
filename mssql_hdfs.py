@@ -15,7 +15,7 @@ with DAG(
     # [START howto_operator_bash]
     create_hdfs_config = BashOperator(
         task_id='create_hdfs_config',
-        bash_command="cat /usr/local/tmp/docker-src/hdfs_move.py",
+        bash_command="ls -la /usr/local/tmp/",
     )
     dump_hdfs_config = BashOperator(
         task_id='dump_hdfs_config',
