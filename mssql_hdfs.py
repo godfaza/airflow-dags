@@ -15,11 +15,7 @@ with DAG(
     # [START howto_operator_bash]
     create_hdfs_config = BashOperator(
         task_id='create_hdfs_config',
-        bash_command="""echo "[global]
-default.alias = dev
-
-[dev.alias]
-url = http://rc1b-dataproc-m-3iu6zt2tusazxrxi.mdb.yandexcloud.net:9870" > ~/.hdfscli.cfg""",
+        bash_command="echo XYZUZUZUZI > ~/.hdfscli.cfg",
     )
     dump_hdfs_config = BashOperator(
         task_id='dump_hdfs_config',
