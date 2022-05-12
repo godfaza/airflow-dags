@@ -15,7 +15,7 @@ with DAG(
     # [START howto_operator_bash]
     create_hdfs_config = BashOperator(
         task_id='create_hdfs_config',
-        bash_command="ls -la /usr/local/tmp/",
+        bash_command="ls /usr/local/tmp/",
         executor_config={
     "KubernetesExecutor": {
       "volumes": [
