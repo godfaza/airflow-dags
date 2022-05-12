@@ -15,8 +15,8 @@ with DAG(
     # [START howto_operator_bash]
     create_hdfs_config = BashOperator(
         task_id='create_hdfs_config',
-        bash_command="ls /usr/local/tmp/",        
-    )
+        bash_command="airflow info",
+            )
     dump_hdfs_config = BashOperator(
         task_id='dump_hdfs_config',
         bash_command='cat ~/.hdfscli.cfg',
