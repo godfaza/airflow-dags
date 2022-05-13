@@ -47,7 +47,7 @@ for n in range(1, 4):
                     'start_date': datetime(2021, 1, 1)
                     }
 
-    schedule = '@daily'
+    schedule = None
     dag_number = n
 
     globals()[dag_id] = create_dag(dag_id,
