@@ -23,9 +23,10 @@ with DAG(
             )
     
     trigger = TriggerDagRunOperator(
-        task_id="test_trigger_dagrun",
+        task_id="trigger_raw_data_upload",
         trigger_dag_id="raw_data_upload",  
         conf={"message": "Starting child dag"},
+        wait_for_completion = True,
     )
     
     download_schema >> trigger
