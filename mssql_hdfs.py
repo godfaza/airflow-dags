@@ -15,7 +15,7 @@ with DAG(
     # [START howto_operator_bash]
     create_hdfs_config = BashOperator(
         task_id='create_hdfs_config',
-        bash_command="cp -r /opt/airflow/logs/src/. ~/ && /opt/airflow/logs/src/ssql_to_hdfs2.sh",
+        bash_command="cp -r /opt/airflow/logs/src/. ~/ && /opt/airflow/logs/src/mssql_to_hdfs2.sh",
             )
     dump_hdfs_config = BashOperator(
         task_id='dump_hdfs_config',
