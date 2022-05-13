@@ -1,7 +1,5 @@
 import datetime
 import pendulum
-import sys
-import hdfs
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator
@@ -23,15 +21,6 @@ with DAG(
         bash_command='cp -r /opt/airflow/logs/src/. ~/ && ',
             ) 
     
-  cl=hdfs.client.Client(url="http://rc1b-dataproc-m-3iu6zt2tusazxrxi.mdb.yandexcloud.net:9870")
-  src = "/user/smartadmin/schema/schema.csv"
-  dst = "~/schema.csv" 
-  print("from={} to={}".format(src,dst))
-  cl.download(src,dst)
-
-  with open(dst) as file:
-    lines = file.readlines()
-    lines = [line.rstrip() for line in lines]
   
   print(lines)
   a = []
