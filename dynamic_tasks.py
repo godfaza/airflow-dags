@@ -32,6 +32,13 @@ with DAG(
     a.append(DummyOperator(
         task_id='Component_'+str(table_name),
         dag=dag))
+    
+    a.append(BashOperator(
+        task_id='download_table_{}'.format(table_name),
+        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{params.table_name}} ",
+        params = {'table_name':table_name},
+        dag=dag))
+    
     if i not in [0]: 
         a[i-1] >> a[i]
    
