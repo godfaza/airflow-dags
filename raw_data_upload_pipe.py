@@ -40,7 +40,7 @@ def read_tables_list():
 tables = read_tables_list()
 # build a dag for each number in range(10)
 for n, table_name in enumerate(tables):
-    dag_id = 'raw_data_upload_pipe_{}'.format(str(n))
+    dag_id = 'raw_data_upload_table_{}'.format(str(table_name))
 
     default_args = {'owner': 'airflow',
                     'start_date': datetime(2021, 1, 1),
