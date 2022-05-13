@@ -12,7 +12,11 @@ with DAG(
     start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
     catchup=False,
 ) as dag:
-    # [START howto_operator_bash]
+
+    download_schema = BashOperator(
+        task_id='download_schema',
+        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_schema.sh && ~/download_schema.sh ",
+            )
     create_hdfs_config = BashOperator(
         task_id='create_hdfs_config',
         bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/mssql_to_hdfs2.sh && ~/mssql_to_hdfs2.sh ",
@@ -26,6 +30,6 @@ with DAG(
         bash_command='/opt/mssql-tools18/bin/sqlcmd -S 192.168.10.39 -d MIP_UtilizeOutbound_Main_Dev_Current -U userdb -P qwerty1 -C -Q "SELECT ID,CODE FROM dbo.Country" -W -w 1024  -I',
     )
     
-    create_hdfs_config >> dump_hdfs_config >> query_db
+    download_schema>> create_hdfs_config >> query_db
    
   
