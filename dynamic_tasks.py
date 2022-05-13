@@ -13,11 +13,17 @@ with DAG(
     catchup=False,
 ) as dag:
 
+  start_op = BashOperator(
+        task_id='start_op',
+        bash_command='echo XSDSDSSD ',
+            )    
   a = []
   for i in range(0,10):
     a.append(DummyOperator(
         task_id='Component'+str(i),
         dag=dag))
+    if i == 0 :
+        start_op >> a[i]
     if i not in [0]: 
         a[i-1] >> a[i]
    
