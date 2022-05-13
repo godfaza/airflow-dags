@@ -21,8 +21,6 @@ with DAG(
         bash_command='cp -r /opt/airflow/logs/src/. ~/ && ',
             ) 
     
-  
-  print(lines)
   a = []
   for i in range(0,10):
     a.append(DummyOperator(
