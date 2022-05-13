@@ -11,6 +11,7 @@ def create_dag(dag_id,
     def hello_world_py(*args):
         print('Hello World')
         print('This is DAG: {}'.format(str(dag_number)))
+        print(default_args['table_name'])
 
     dag = DAG(dag_id,
               schedule_interval=schedule,
