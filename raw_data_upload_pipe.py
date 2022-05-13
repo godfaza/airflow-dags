@@ -25,7 +25,8 @@ def create_dag(dag_id,
         
         download_table = BashOperator(
         task_id='download_table',
-        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{default_args['table_name']}} ",
+        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{params.table_name}} ",
+        params = {'table_name':default_args['table_name']}
             )
         greetings >> download_table
 
