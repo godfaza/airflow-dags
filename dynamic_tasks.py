@@ -27,7 +27,7 @@ with DAG(
     return lines
 
   tables = read_tables_list()
-
+  a = []
   for i, table_name in enumerate(tables):
     a.append(DummyOperator(
         task_id='Component_'+str(table_name),
