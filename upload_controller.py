@@ -8,6 +8,7 @@ import pendulum
 
 from airflow import DAG
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.operators.bash import BashOperator
 
 with DAG(
     dag_id="upload_controller",
@@ -16,8 +17,15 @@ with DAG(
     schedule_interval=None,
     tags=['example'],
 ) as dag:
+    download_schema = BashOperator(
+        task_id='download_schema',
+        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_schema.sh && ~/download_schema.sh ",
+            )
+    
     trigger = TriggerDagRunOperator(
         task_id="test_trigger_dagrun",
-        trigger_dag_id="example_trigger_target_dag",  # Ensure this equals the dag_id of the DAG to trigger
+        trigger_dag_id="raw_data_upload",  
         conf={"message": "Starting child dag"},
     )
+    
+    download_schema >> trigger
