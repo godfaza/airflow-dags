@@ -30,17 +30,16 @@ def read_tables_list():
   cl=hdfs.client.Client(url="http://rc1b-dataproc-m-3iu6zt2tusazxrxi.mdb.yandexcloud.net:9870")
   src = "/user/smartadmin/schema/schema.csv"
   dst = "/tmp/schema.csv" 
-  print("from={} to={}".format(src,dst))
-  cl.download(src,dst)
-  
-  with open(dst) as file:
+  with client.read(src, encoding='utf-8') as reader:
+    file = reader.read()
     lines = file.readlines()
     lines = [line.rstrip() for line in lines]
     print(lines)
+    return lines
 
-read_tables_list()
+tables = read_tables_list()
 # build a dag for each number in range(10)
-for n in range(1, 4):
+for n, table_name in enumerate(tables):
     dag_id = 'raw_data_upload_pipe_{}'.format(str(n))
 
     default_args = {'owner': 'airflow',
