@@ -30,7 +30,7 @@ def read_tables_list():
   cl=hdfs.client.Client(url="http://rc1b-dataproc-m-3iu6zt2tusazxrxi.mdb.yandexcloud.net:9870")
   src = "/user/smartadmin/schema/schema.csv"
   dst = "/tmp/schema.csv" 
-  with client.read(src, encoding='utf-8') as reader:
+  with cl.read(src, encoding='utf-8') as reader:
     file = reader.read()
     lines = file.readlines()
     lines = [line.rstrip() for line in lines]
