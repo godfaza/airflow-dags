@@ -32,7 +32,7 @@ def read_tables_list():
   dst = "/tmp/schema.csv" 
   with cl.read(src, encoding='utf-8') as reader:
     file = reader.read()
-    lines = file.readlines()
+    lines = file
     lines = [line.rstrip() for line in lines]
     print(lines)
     return lines
