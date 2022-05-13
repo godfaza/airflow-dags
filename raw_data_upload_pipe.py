@@ -9,8 +9,7 @@ def create_dag(dag_id,
                dag_number,
                default_args):
 
-    def hello_world_py(*args):
-        print('Hello World')
+    def print_info_py(*args):
         print('This is DAG: {}'.format(str(dag_number)))
         print(default_args['table_name'])
 
@@ -19,16 +18,16 @@ def create_dag(dag_id,
               default_args=default_args)
 
     with dag:
-        greetings = PythonOperator(
-            task_id='hello_world',
-            python_callable=hello_world_py)
+        print_info = PythonOperator(
+            task_id='print_info',
+            python_callable=print_info_py)
         
         download_table = BashOperator(
         task_id='download_table',
         bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{params.table_name}} ",
         params = {'table_name':default_args['table_name']}
             )
-        greetings >> download_table
+        print_info >> download_table
 
     return dag
 
