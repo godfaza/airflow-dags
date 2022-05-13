@@ -23,7 +23,7 @@ def create_dag(dag_id,
 
     return dag
 
-def read_tables_list:
+def read_tables_list():
   import sys
   import hdfs
   
@@ -38,7 +38,8 @@ def read_tables_list:
     lines = [line.rstrip() for line in lines]
   
   print(lines)
-  
+
+read_tables_list()
 # build a dag for each number in range(10)
 for n in range(1, 4):
     dag_id = 'raw_data_upload_pipe_{}'.format(str(n))
