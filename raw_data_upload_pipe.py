@@ -29,7 +29,7 @@ def read_tables_list():
   
   cl=hdfs.client.Client(url="http://rc1b-dataproc-m-3iu6zt2tusazxrxi.mdb.yandexcloud.net:9870")
   src = "/user/smartadmin/schema/schema.csv"
-  dst = "~/schema.csv" 
+  dst = "/tmp/schema.csv" 
   print("from={} to={}".format(src,dst))
   cl.download(src,dst)
   
