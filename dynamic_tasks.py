@@ -12,22 +12,26 @@ with DAG(
     catchup=False,
 ) as dag:
 
-  download_schema = BashOperator(
-        task_id='download_schema',
-        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_schema.sh && ~/download_schema.sh ",
-            )  
-  start_op = BashOperator(
-        task_id='upload_schema',
-        bash_command='cp -r /opt/airflow/logs/src/. ~/ && ',
-            ) 
-    
-  a = []
-  for i in range(0,10):
+   
+  def read_tables_list():
+   import sys
+   import hdfs
+  
+   cl=hdfs.client.Client(url="http://rc1b-dataproc-m-3iu6zt2tusazxrxi.mdb.yandexcloud.net:9870")
+   src = "/user/smartadmin/schema/schema.csv"
+   dst = "/tmp/schema.csv" 
+   with cl.read(src, encoding='utf-8') as reader:
+    file = reader.read()
+    lines = file.splitlines()
+    print(lines)
+    return lines
+
+  tables = read_tables_list()
+
+  for i, table_name in enumerate(tables):
     a.append(DummyOperator(
-        task_id='Component'+str(i),
+        task_id='Component_'+str(table_name),
         dag=dag))
-    if i == 0 :
-       download_schema >> start_op >> a[i]
     if i not in [0]: 
         a[i-1] >> a[i]
    
