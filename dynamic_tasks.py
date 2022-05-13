@@ -12,11 +12,7 @@ with DAG(
     catchup=False,
 ) as dag:
 
-  download_schema = BashOperator(
-        task_id='download_schema',
-        bash_command="cp -r /opt/airflow/logs/src/. /tmp/ && chmod +x /tmp/download_schema.sh && /tmp/download_schema.sh ",
-            )
-   
+ 
   def read_tables_list():
    import sys
    import hdfs
@@ -38,8 +34,7 @@ with DAG(
         bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{params.table_name}} ",
         params = {'table_name':table_name},
         dag=dag))
-    if i == 0 :
-        download_schema >> a[i]
+
     if i not in [0]: 
         a[i-1] >> a[i]
    
