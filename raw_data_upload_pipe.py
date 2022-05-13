@@ -18,9 +18,15 @@ def create_dag(dag_id,
               default_args=default_args)
 
     with dag:
-        t1 = PythonOperator(
+        greetings = PythonOperator(
             task_id='hello_world',
             python_callable=hello_world_py)
+        
+        download_table = BashOperator(
+        task_id='download_table',
+        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{default_args['table_name']}} ",
+            )
+        greetings >> download_table
 
     return dag
 
@@ -38,7 +44,6 @@ def read_tables_list():
     return lines
 
 tables = read_tables_list()
-# build a dag for each number in range(10)
 for n, table_name in enumerate(tables):
     dag_id = 'raw_data_upload_table_{}'.format(str(table_name))
 
