@@ -33,11 +33,10 @@ def read_tables_list():
   print("from={} to={}".format(src,dst))
   cl.download(src,dst)
   
-   with open(dst) as file:
+  with open(dst) as file:
     lines = file.readlines()
     lines = [line.rstrip() for line in lines]
-  
-  print(lines)
+    print(lines)
 
 read_tables_list()
 # build a dag for each number in range(10)
