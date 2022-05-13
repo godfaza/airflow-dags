@@ -42,7 +42,8 @@ for n, table_name in enumerate(tables):
     dag_id = 'raw_data_upload_pipe_{}'.format(str(n))
 
     default_args = {'owner': 'airflow',
-                    'start_date': datetime(2021, 1, 1)
+                    'start_date': datetime(2021, 1, 1),
+                    'table_name': table_name
                     }
 
     schedule = None
