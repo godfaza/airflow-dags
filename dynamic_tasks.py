@@ -7,7 +7,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
 
 with DAG(
-    dag_id='mssql_to_hdfs_export',
+    dag_id='dynamic_tasks',
     schedule_interval=None,
     start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
     catchup=False,
