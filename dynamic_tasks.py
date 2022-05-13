@@ -29,10 +29,6 @@ with DAG(
   tables = read_tables_list()
   a = []
   for i, table_name in enumerate(tables):
-    a.append(DummyOperator(
-        task_id='Component_'+str(table_name),
-        dag=dag))
-    
     a.append(BashOperator(
         task_id='download_table_{}'.format(table_name),
         bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{params.table_name}} ",
