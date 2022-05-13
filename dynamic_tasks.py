@@ -6,7 +6,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
 
 with DAG(
-    dag_id='dynamic_tasks',
+    dag_id='raw_data_upload',
     schedule_interval=None,
     start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
     catchup=False,
