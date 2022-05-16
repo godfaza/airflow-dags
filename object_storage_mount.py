@@ -23,6 +23,7 @@ with DAG(
                                           "mountPath": "/source-code"
                                       },
                                   }]
+        }
                              },
     )
 
