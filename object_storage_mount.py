@@ -15,16 +15,8 @@ with DAG(
 
     check_mount = BashOperator(
         task_id='check_mount',
-        bash_command="ls -la /source-code",
-        executor_config={"KubernetesExecutor": {
-                                  "image": "airflow:runner2",
-                                  "volume_mounts": [
-                                      {
-                                          "name": "airlow-source-code",
-                                          "mountPath": "/tmp/source-code"
-                                      }],
-                                  }
-                             },
+        bash_command="ls -la /tmp/data",
+   
     )
 
     check_mount
