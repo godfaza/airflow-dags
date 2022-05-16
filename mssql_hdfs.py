@@ -22,9 +22,14 @@ with DAG(
         bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{params.table_name}} ",
         params = {'table_name':'YA_DATAMART4'},
         )
+    upload_file = BashOperator(
+        task_id='download_table',
+        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/upload_file.sh && ~/upload_file.sh {{params.table_name}} ",
+        params = {'table_name':'YA_DATAMART4'},
+        )
     query_db = BashOperator(
         task_id='query_db',
-        bash_command='/opt/mssql-tools18/bin/sqlcmd -S 192.168.10.39 -d MIP_UtilizeOutbound_Main_Dev_Current -U userdb -P qwerty1 -C -Q "SELECT ID,CODE FROM dbo.Country" -W -w 1024  -I',
+        bash_command='/opt/mssql-tools18/bin/sqlcmd -S 192.168.10.39 -d MIP_UtilizeOutbound_Main_Dev_Current -U userdb -P qwerty1 -C -Q "SELECT count(*) FROM dbo.YA_DATAMART4" -W -w 1024  -I',
     )
     
     download_schema>> download_table >> query_db
