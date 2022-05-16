@@ -22,7 +22,7 @@ with DAG(
                                           "name": "airlow-source-code",
                                           "mountPath": "/source-code"
                                       },
-                                  }
+                                  }]
                              },
     )
 
