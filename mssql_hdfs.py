@@ -20,12 +20,12 @@ with DAG(
     download_table = BashOperator(
         task_id='download_table',
         bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{params.table_name}} ",
-        params = {'table_name':'YA_DATAMART4'},
+        params = {'table_name':'YA_DATAMART5'},
         )
     upload_file = BashOperator(
         task_id='upload_file',
-        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/upload_file.sh && ~/upload_file.sh {{params.table_name}} ",
-        params = {'table_name':'YA_DATAMART4'},
+        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/upload_file_merging.sh && ~/upload_file_merging.sh {{params.table_name}} ",
+        params = {'table_name':'YA_DATAMART5'},
         )
     query_db = BashOperator(
         task_id='query_db',
