@@ -15,7 +15,7 @@ with DAG(
 
     check_mount = BashOperator(
         task_id='check_mount',
-        bash_command="ls -la /tmp/data",
+        bash_command="echo geesfs write tests >  /tmp/data/out.txt",
    
     )
 
