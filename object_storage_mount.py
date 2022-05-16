@@ -17,13 +17,13 @@ with DAG(
         task_id='check_mount',
         bash_command="ls -la /source-code",
         executor_config={"KubernetesExecutor": {
-                                     "volume_mounts": [
+                                  "image": "airflow:runner2",
+                                  "volume_mounts": [
                                       {
                                           "name": "airlow-source-code",
-                                          "mountPath": "/source-code"
-                                      },
-                                  }]
-        }
+                                          "mountPath": "/tmp/source-code"
+                                      }],
+                                  }
                              },
     )
 
