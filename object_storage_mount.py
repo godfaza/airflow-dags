@@ -18,7 +18,13 @@ with DAG(
         bash_command="echo geesfs write tests >  /tmp/data/out.txt",
    
     )
+    
+    java_check = BashOperator(
+        task_id='java_check',
+        bash_command="java -version",
+   
+    )
 
-    check_mount
+    check_mount >> java_check
    
   
