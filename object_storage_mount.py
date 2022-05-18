@@ -21,7 +21,7 @@ with DAG(
     
     java_check = BashOperator(
         task_id='java_check',
-        bash_command="java -version",
+        bash_command="hadoop version",
    
     )
 
