@@ -21,7 +21,7 @@ with DAG(
     
     java_check = BashOperator(
         task_id='java_check',
-        bash_command=" hadoop fs -ls /",
+        bash_command=" hadoop fs -ls hdfs://",
    
     )
 
