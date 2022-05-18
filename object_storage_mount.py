@@ -21,7 +21,7 @@ with DAG(
     
     java_check = BashOperator(
         task_id='java_check',
-        bash_command="echo ABCDEFGxyz|hadoop fs -put - hdfs://rc1b-dataproc-m-3iu6zt2tusazxrxi.mdb.yandexcloud.net/user/smartadmin/data/out.txt",
+        bash_command="cp -r /tmp/data/src/. /etc/hadoop/ && echo ABCDEFGxyz|hadoop fs -put - hdfs://user/smartadmin/data/out11.txt",
    
     )
 
