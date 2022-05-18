@@ -21,7 +21,7 @@ with DAG(
     
     java_check = BashOperator(
         task_id='java_check',
-        bash_command=" hadoop fs -ls hdfs://",
+        bash_command=" hadoop fs -ls hdfs://rc1b-dataproc-m-3iu6zt2tusazxrxi.mdb.yandexcloud.net/",
    
     )
 
