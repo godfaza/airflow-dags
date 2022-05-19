@@ -20,7 +20,7 @@ with DAG(
     download_table = BashOperator(
         task_id='download_table',
         bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{params.table_name}} ",
-        params = {'table_name':'YA_DATAMART5'},
+        params = {'table_name':'YA_DATAMART4'},
         )
     upload_file = BashOperator(
         task_id='upload_file',
