@@ -15,16 +15,16 @@ with DAG(
 
     download_schema = BashOperator(
         task_id='download_schema',
-        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_schema.sh && ~/download_schema.sh ",
+        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/download_schema.sh && ~/download_schema.sh ",
             )
     download_table = BashOperator(
         task_id='download_table',
-        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{params.table_name}} ",
+        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{params.table_name}} ",
         params = {'table_name':'YA_DATAMART5'},
         )
     upload_file = BashOperator(
         task_id='upload_file',
-        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/upload_file_merging.sh && ~/upload_file_merging.sh {{params.table_name}} ",
+        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/upload_file_merging.sh && ~/upload_file_merging.sh {{params.table_name}} ",
         params = {'table_name':'YA_DATAMART5'},
         )
     query_db = BashOperator(
