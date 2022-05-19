@@ -27,7 +27,7 @@ with DAG(
     
     check_git = BashOperator(
         task_id='check_git',
-        bash_command="ls /airflow/dags",
+        bash_command="ls /airflow",
    
     )
     
