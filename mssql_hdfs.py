@@ -24,7 +24,7 @@ with DAG(
         )
     upload_file = BashOperator(
         task_id='upload_file',
-        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/upload_file.sh && ~/upload_file.sh {{params.table_name}} ",
+        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/upload_file_fifo.sh && ~/upload_file_fifo.sh {{params.table_name}} ",
         params = {'table_name':'YA_DATAMART4'},
         )
     query_db = BashOperator(
