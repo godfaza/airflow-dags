@@ -12,7 +12,7 @@ def print_var():
 with DAG('vault_secrets_test', start_date=datetime(2022, 1, 1), schedule_interval=None) as dag:
   ping = BashOperator(
         task_id='ping',
-        bash_command="echo $ENV AIRFLOW__SECRETS__BACKEND_KWARGS",
+        bash_command="echo $AIRFLOW__SECRETS__BACKEND_KWARGS",
             )
   test_task = PythonOperator(
       task_id='test-task',
