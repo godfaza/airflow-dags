@@ -10,10 +10,10 @@ def print_var():
     print(f'My variable is: {my_var}')
 
 with DAG('vault_secrets_test', start_date=datetime(2022, 1, 1), schedule_interval=None) as dag:
-#   ping = BashOperator(
-#         task_id='ping',
-#         bash_command="ping -c 3 jupiter-app-test-vault.ru-central1.internal",
-#             )
+  ping = BashOperator(
+        task_id='ping',
+        bash_command="echo $ENV AIRFLOW__SECRETS__BACKEND_KWARGS",
+            )
   test_task = PythonOperator(
       task_id='test-task',
       python_callable=print_var,
