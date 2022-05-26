@@ -14,9 +14,8 @@ def print_var():
 #         task_id='ping',
 #         bash_command="ping -c 3 jupiter-app-test-vault.ru-central1.internal",
 #             )
-  test_task = PythonOperator(
+    test_task = PythonOperator(
       task_id='test-task',
       python_callable=print_var,
-)
-
-  test_task
+    )
+    test_task
