@@ -6,7 +6,7 @@ from airflow.operators.bash import BashOperator
 from datetime import datetime
 
 def print_var():
-    my_var = Variable.get("var1")
+    my_var = Variable.get("topsecret")
     print(f'My variable is: {my_var}')
 
 with DAG('vault_secrets_test', start_date=datetime(2022, 1, 1), schedule_interval=None) as dag:
