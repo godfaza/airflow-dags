@@ -19,4 +19,4 @@ with DAG('vault_secrets_test', start_date=datetime(2022, 1, 1), schedule_interva
       python_callable=print_var,
     )
   
-  test_task
+  ping >> test_task
