@@ -20,7 +20,7 @@ with DAG(
     
     upload_file = BashOperator(
         task_id='upload_file',
-        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/bcp_import && ldconfig /opt/microsoft/msodbcsql18/lib64 && hadoop dfs -cat /user/smartadmin/data/data.csv|~/./bcp_import ",
+        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/bcp_import && hadoop dfs -cat /user/smartadmin/data/data.csv|~/./bcp_import ",
         )
     
     cat >> upload_file 
