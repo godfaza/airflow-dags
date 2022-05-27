@@ -14,7 +14,7 @@ with DAG(
 ) as dag:
     cat = BashOperator(
         task_id='cat',
-        bash_command="whereis libmsodbcsql-18.so",
+        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/bcp_import && ldd ~/./bcp_import ",
         )
     
     
