@@ -14,7 +14,7 @@ with DAG(
 ) as dag:
     cat = BashOperator(
         task_id='cat',
-        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/bcp_import && ldd ~/./bcp_import ",
+        bash_command=" cat /etc/ld.so.conf.d/msodbc.conf ",
         )
     
     
