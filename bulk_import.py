@@ -14,7 +14,7 @@ with DAG(
 ) as dag:
     cat = BashOperator(
         task_id='cat',
-        bash_command="cat /etc/ld.so.conf ",
+        bash_command="cat /etc/ld.so.conf.d/libc.conf ",
         )
     
     
