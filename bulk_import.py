@@ -12,11 +12,17 @@ with DAG(
     start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
     catchup=False,
 ) as dag:
+    cat = BashOperator(
+        task_id='cat',
+        bash_command="hadoop dfs -cat /user/smartadmin/data/data.csv",
+        )
+    
+    
     upload_file = BashOperator(
         task_id='upload_file',
         bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/bcp_import && hadoop dfs -cat /user/smartadmin/data/data.csv|~/bcp_import ",
         )
     
-    upload_file 
+    cat >> upload_file 
    
   
