@@ -14,7 +14,7 @@ with DAG(
 ) as dag:
     cat = BashOperator(
         task_id='cat',
-        bash_command=" ls -la /opt/microsoft/msodbcsql18/lib64 ",
+        bash_command="cat /etc/ld.so.conf ",
         )
     
     
