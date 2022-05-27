@@ -14,7 +14,7 @@ with DAG(
 ) as dag:
     cat = BashOperator(
         task_id='cat',
-        bash_command="ls -l /usr/lib ",
+        bash_command="whereis libmsodbcsql-18.so",
         )
     
     
