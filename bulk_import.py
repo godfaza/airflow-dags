@@ -14,7 +14,7 @@ with DAG(
 ) as dag:
     cat = BashOperator(
         task_id='cat',
-        bash_command="hadoop dfs -cat /user/smartadmin/data/data.csv",
+        bash_command="ls -la /etc/ld.so.conf.d/ ",
         )
     
     
