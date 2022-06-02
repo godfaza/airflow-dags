@@ -1,5 +1,6 @@
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.bash import BashOperator
 from datetime import datetime
 from airflow.hooks.base_hook import BaseHook
 
