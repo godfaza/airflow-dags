@@ -9,7 +9,6 @@ def get_secrets(**kwargs):
      print(f"Password: {conn.password}, Login: {conn.login}, URI: {conn.get_uri()}, Host: {conn.host}")
 
 with DAG('vault_connections_test', start_date=datetime(2020, 1, 1), schedule_interval=None) as dag:
-
      test_task = PythonOperator(
          task_id='test-task',
          python_callable=get_secrets,
