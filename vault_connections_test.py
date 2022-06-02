@@ -14,3 +14,8 @@ with DAG('vault_connections_test', start_date=datetime(2020, 1, 1), schedule_int
          python_callable=get_secrets,
          op_kwargs={'my_conn_id': 'jupiter_dev_mssql'},
      )
+     download_schema = BashOperator(
+        task_id='exec_query',
+        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh \\"select 1\\" /user/smartadmin/schema/query_out.csv {{params.host}} {{params.schema}} {{params.login}} {{params.password}} ",
+        params = BaseHook.get_connection('jupiter_dev_mssql'),  
+            )
