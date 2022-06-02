@@ -4,7 +4,7 @@ from datetime import datetime
 from airflow.hooks.base_hook import BaseHook
 
 def get_secrets(**kwargs):
-     conn = BaseHook.get_connection(kwargs['default_email'])
+     conn = BaseHook.get_connection('default_email')
      print(conn)
      print(f"Password: {conn.password}, Login: {conn.login}, URI: {conn.get_uri()}, Host: {conn.host}")
 
