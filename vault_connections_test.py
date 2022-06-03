@@ -7,7 +7,7 @@ from airflow.hooks.base_hook import BaseHook
 def get_secrets(**kwargs):
      conn = BaseHook.get_connection(kwargs['my_conn_id'])
      print(f"Password: {conn.password}, Login: {conn.login}, URI: {conn.get_uri()}, Host: {conn.host}, Schema: {conn.schema}")
-     return '"-S {} -d {} -U {} -P {}"'.format(conn.host,conn.schema,conn.login,conn.password)
+     return '-S {} -d {} -U {} -P {}'.format(conn.host,conn.schema,conn.login,conn.password)
 
 with DAG('vault_connections_test', start_date=datetime(2020, 1, 1), schedule_interval=None) as dag:
 
@@ -19,6 +19,6 @@ with DAG('vault_connections_test', start_date=datetime(2020, 1, 1), schedule_int
      download_schema = BashOperator(
         task_id='exec_query',
 #           bash_command='echo "{{ ti.xcom_pull(task_ids="test-task") }}"',
-        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "select * from Country;" /user/smartadmin/schema/query_out.csv "{{ ti.xcom_pull(task_ids="test-task") }}" ',
+        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "select * from Country;" /user/smartadmin/schema/query_out.csv ""{{ ti.xcom_pull(task_ids="test-task") }}"" ',
             )
      test_task >> download_schema
