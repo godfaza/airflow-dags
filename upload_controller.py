@@ -19,7 +19,7 @@ with DAG(
 ) as dag:
     download_schema = BashOperator(
         task_id='download_schema',
-        bash_command="cp -r /opt/airflow/logs/src/. ~/ && chmod +x ~/download_schema.sh && ~/download_schema.sh ",
+        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/download_schema.sh && ~/download_schema.sh ",
             )
     
     trigger = TriggerDagRunOperator(
