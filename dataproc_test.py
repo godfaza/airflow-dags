@@ -34,18 +34,18 @@ with DAG(
         file_uris=[
             's3a://data-proc-public/jobs/sources/data/config.json',
         ],
-        archive_uris=[
-            's3a://data-proc-public/jobs/sources/data/country-codes.csv.zip',
-        ],
+#         archive_uris=[
+#             's3a://data-proc-public/jobs/sources/data/country-codes.csv.zip',
+#         ],
         args=[
             's3a://data-proc-public/jobs/sources/data/cities500.txt.bz2',
             f's3a://{S3_BUCKET_NAME_FOR_JOB_LOGS}/dataproc/job/results/${{JOB_ID}}',
         ],
-        jar_file_uris=[
-            's3a://data-proc-public/jobs/sources/java/dataproc-examples-1.0.jar',
-            's3a://data-proc-public/jobs/sources/java/icu4j-61.1.jar',
-            's3a://data-proc-public/jobs/sources/java/commons-lang-2.6.jar',
-        ],
+#         jar_file_uris=[
+#             's3a://data-proc-public/jobs/sources/java/dataproc-examples-1.0.jar',
+#             's3a://data-proc-public/jobs/sources/java/icu4j-61.1.jar',
+#             's3a://data-proc-public/jobs/sources/java/commons-lang-2.6.jar',
+#         ],
         properties={
             'spark.submit.deployMode': 'cluster',
         },
