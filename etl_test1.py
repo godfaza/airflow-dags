@@ -78,7 +78,7 @@ with DAG(
         exclude_packages=['com.amazonaws:amazon-kinesis-client'],
     )
     
-    t0 >> tg1 >> transform >> tg2
+  t0 >> tg1 >> transform >> tg2
 
 
    
