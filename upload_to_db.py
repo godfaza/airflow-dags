@@ -31,7 +31,7 @@ with DAG(
   for i, table_name in enumerate(tables):
     upload_dataset_to_db = BashOperator(
         task_id='upload_dataset_{}'.format(table_name),
-        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/upload_file.sh && ~/upload_file.sh {{params.table_name}} 'YA_DATAMART_FDM{}'.format(i+1) ",
+        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/upload_file.sh && ~/upload_file.sh {{params.table_name}} {{'YA_DATAMART_FDM{}'.format(i+1)}} ",
         params = {'table_name':table_name},
         dag=dag)
 
