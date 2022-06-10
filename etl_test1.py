@@ -26,23 +26,28 @@ with DAG(
     lines = file.splitlines()
     print(lines)
     return lines
-
+   
   tables = read_tables_list()
-  a = []
-  for i, entity_name in enumerate(tables):
-    download_table = BashOperator(
+
+  t0 = DummyOperator(task_id='start')
+
+  with TaskGroup(group_id='tables_to_datasets') as tg1:
+    for i, entity_name in enumerate(tables):
+      download_table = BashOperator(
         task_id='download_table_{}'.format(entity_name),
         bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{params.table_name}} ",
         params = {'table_name':entity_name},
         dag=dag)
-    
-    upload_dataset_to_db = BashOperator(
+
+  with TaskGroup(group_id='datasets_to_tables') as tg1:
+    for i, entity_name in enumerate(tables):    
+      upload_dataset_to_db = BashOperator(
         task_id='upload_dataset_{}'.format(entity_name),
         bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/upload_file.sh && ~/upload_file.sh {{params.file_name}} {{params.table_name}} ",
         params = {'file_name':entity_name,'table_name':'YA_DATAMART_FDM{}'.format(i+1)},
         dag=dag)
     
-    download_table >> upload_dataset_to_db
+    t0 >> tg1 >> tg2
 
 
    
