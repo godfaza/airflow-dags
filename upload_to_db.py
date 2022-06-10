@@ -29,13 +29,12 @@ with DAG(
   tables = read_tables_list()
   a = []
   for i, table_name in enumerate(tables):
-    download_table = BashOperator(
-        task_id='download_table_{}'.format(table_name),
-        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/download_table.sh && ~/download_table.sh {{params.table_name}} ",
+    upload_dataset_to_db = BashOperator(
+        task_id='upload_dataset_{}'.format(table_name),
+        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/upload_file.sh && ~/upload_file.sh {{params.table_name}} ",
         params = {'table_name':table_name},
         dag=dag)
 
-#    if i not in [0]: 
-#        a[i-1] >> a[i]
+
    
   
