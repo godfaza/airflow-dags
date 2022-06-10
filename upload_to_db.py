@@ -28,11 +28,11 @@ with DAG(
 
   tables = read_tables_list()
   a = []
-  for i, table_name in enumerate(tables):
+  for i, file_name in enumerate(tables):
     upload_dataset_to_db = BashOperator(
-        task_id='upload_dataset_{}'.format(table_name),
-        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/upload_file.sh && ~/upload_file.sh {{params.table_name}} {{'YA_DATAMART_FDM{}'.format(i+1)}} ",
-        params = {'table_name':table_name},
+        task_id='upload_dataset_{}'.format(file_name),
+        bash_command="cp -r /tmp/data/src/. ~/ && chmod +x ~/upload_file.sh && ~/upload_file.sh {{params.file_name}} {{params.table_name}} ",
+        params = {'file_name':file_name,'table_name':'YA_DATAMART_FDM{}'.format(i+1)},
         dag=dag)
 
 
