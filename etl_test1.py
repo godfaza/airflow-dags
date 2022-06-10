@@ -5,6 +5,18 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.utils.task_group import TaskGroup
+import uuid
+from airflow.providers.yandex.operators.yandexcloud_dataproc import (
+    DataprocCreateClusterOperator,
+    DataprocCreateHiveJobOperator,
+    DataprocCreateMapReduceJobOperator,
+    DataprocCreatePysparkJobOperator,
+    DataprocCreateSparkJobOperator,
+    DataprocDeleteClusterOperator,
+)
+
+AVAILABILITY_ZONE_ID = 'ru-central1-b'
+S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 
 with DAG(
     dag_id='etl_test1',
@@ -47,7 +59,26 @@ with DAG(
         params = {'file_name':entity_name,'table_name':'YA_DATAMART_FDM{}'.format(i+1)},
         dag=dag)
     
-    t0 >> tg1 >> tg2
+  transform = DataprocCreatePysparkJobOperator(
+        task_id='transform',
+        cluster_id='c9qc9m3jccl8v7vigq10',
+        main_python_file_uri='s3a://jupiter-app-test-storage/src/EMPTY_JOB.py',
+        file_uris=[
+            's3a://data-proc-public/jobs/sources/data/config.json',
+        ],
+        args=[
+            's3a://data-proc-public/jobs/sources/data/cities500.txt.bz2',
+            f's3a://{S3_BUCKET_NAME_FOR_JOB_LOGS}/dataproc/job/results/${{JOB_ID}}',
+        ],
+        properties={
+            'spark.submit.deployMode': 'cluster',
+        },
+        packages=['org.slf4j:slf4j-simple:1.7.30'],
+        repositories=['https://repo1.maven.org/maven2'],
+        exclude_packages=['com.amazonaws:amazon-kinesis-client'],
+    )
+    
+    t0 >> tg1 >> transform >> tg2
 
 
    
