@@ -39,7 +39,7 @@ with DAG(
         params = {'table_name':entity_name},
         dag=dag)
 
-  with TaskGroup(group_id='datasets_to_tables') as tg1:
+  with TaskGroup(group_id='datasets_to_tables') as tg2:
     for i, entity_name in enumerate(tables):    
       upload_dataset_to_db = BashOperator(
         task_id='upload_dataset_{}'.format(entity_name),
