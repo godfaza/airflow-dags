@@ -4,6 +4,7 @@ import pendulum
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
+from airflow.utils.task_group import TaskGroup
 
 with DAG(
     dag_id='etl_test1',
