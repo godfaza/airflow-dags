@@ -7,7 +7,7 @@ from airflow.providers.microsoft.mssql.operators.mssql import MsSqlOperator
 
 
 with DAG(
-    DAG_ID,
+    'mssql_test',
     schedule_interval=None,
     start_date=datetime(2021, 10, 1),
     tags=['mssql_test'],
