@@ -4,6 +4,7 @@ from datetime import datetime
 from airflow import DAG
 from airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook
 from airflow.providers.microsoft.mssql.operators.mssql import MsSqlOperator
+from airflow.operators.bash import BashOperator
 
 
 with DAG(
@@ -18,6 +19,10 @@ with DAG(
         mssql_conn_id='jupiter_dev_mssql',
         sql=r"""SELECT * FROM Country;""",
     )
+    echo = BashOperator(
+        task_id='exec_query',
+          bash_command='echo 1234',
+            )
     
-    query1
+    echo
  
