@@ -15,14 +15,16 @@ dag = DAG(
 
 def sample_select():
     odbc_hook = OdbcHook() 
-    cnxn = odbc_hook.get_conn()
+    rec = odbc_hook.get_records("SELECT * from Country;")
+    print(rec)
+#     cnxn = odbc_hook.get_conn()
 
-    cursor = cnxn.cursor()
-    cursor.execute("SELECT * from Country;")
-    row = cursor.fetchone()
-    while row:
-        print(row[2])
-        row = cursor.fetchone()
+#     cursor = cnxn.cursor()
+#     cursor.execute("SELECT * from Country;")
+#     row = cursor.fetchone()
+#     while row:
+#         print(row[2])
+#         row = cursor.fetchone()
 
 PythonOperator(
     task_id="sample_select",
