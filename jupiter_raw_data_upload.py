@@ -40,10 +40,9 @@ def get_db_schema(**context):
     conn = hdfs_hook.get_conn()
     
     df =  odbc_hook.get_pandas_df(query)
-    csv_buffer = StringIO()
-    df.to_csv(csv_buffer, index=False)
+    df.to_csv('/tmp/PARAMETERS.csv', index=False)
     
-    conn.upload(dst_path,csv_buffer.getvalue())
+    conn.upload(dst_path,'/tmp/PARAMETERS.csv')
 
 with DAG(
     dag_id='jupiter_raw_data_upload',
