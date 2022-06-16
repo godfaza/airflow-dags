@@ -30,7 +30,7 @@ def get_parameters():
 
 def get_db_schema(**context):
     parameters = context['ti'].xcom_pull(task_ids="get_parameters_from_kv")
-    dst_path = "{}/{}".format(parameters['RawPath'],"/#MAINTENANCE/PARAMETERS.csv"
+    dst_path = "{}/{}".format(parameters['RawPath'],"/#MAINTENANCE/PARAMETERS.csv")
     query =  mssql_scripts.generate_db_schema_query(white_list=parameters['WhiteList'])
     print(query)
     
