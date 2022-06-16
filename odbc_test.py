@@ -18,11 +18,10 @@ def sample_select():
     cnxn = odbc_hook.get_conn()
 
     cursor = cnxn.cursor()
-    cursor.execute("SELECT @@SERVERNAME, @@VERSION;")
+    cursor.execute("SELECT * from Country;")
     row = cursor.fetchone()
     while row:
-        print("Server Name:" + row[0])
-        print("Server Version:" + row[1])
+        print(row[2])
         row = cursor.fetchone()
 
 PythonOperator(
