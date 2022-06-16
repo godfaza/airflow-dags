@@ -39,3 +39,9 @@ PythonOperator(
     python_callable=sample_select,
     dag=dag,
 )
+
+PythonOperator(
+    task_id="hdfs_list_files",
+    python_callable=hdfs_test,
+    dag=dag,
+)
