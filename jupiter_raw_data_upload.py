@@ -33,16 +33,22 @@ def get_db_schema(**context):
     parameters = context['ti'].xcom_pull(task_ids="get_parameters_from_kv")
     dst_path = "{}/{}".format(parameters['RawPath'],"/#MAINTENANCE/PARAMETERS.csv")
     query =  mssql_scripts.generate_db_schema_query(white_list=parameters['WhiteList'])
-    print(query)
+    return query
+#     print(query)
     
-    odbc_hook = OdbcHook()
-    hdfs_hook = WebHDFSHook()
-    conn = hdfs_hook.get_conn()
+#     odbc_hook = OdbcHook()
+#     hdfs_hook = WebHDFSHook()
+#     conn = hdfs_hook.get_conn()
     
-    df =  odbc_hook.get_pandas_df(query)
-    df.to_csv('/tmp/PARAMETERS.csv', index=False)
+#     df =  odbc_hook.get_pandas_df(query)
+#     df.to_csv('/tmp/PARAMETERS.csv', index=False)
     
-    conn.upload(dst_path,'/tmp/PARAMETERS.csv')
+#     conn.upload(dst_path,'/tmp/PARAMETERS.csv')
+
+def get_bcp_parameters(**kwargs):
+     conn = BaseHook.get_connection('jupiter_dev_mssql')
+     print(f"Password: {conn.password}, Login: {conn.login}, URI: {conn.get_uri()}, Host: {conn.host}, Schema: {conn.schema}")
+     return '-S {} -d {} -U {} -P {}'.format(conn.host,conn.schema,conn.login,conn.password)
 
 with DAG(
     dag_id='jupiter_raw_data_upload',
@@ -62,7 +68,13 @@ with DAG(
       provide_context=True,
     )
     
-  get_parameters_from_kv >>  extract_db_schema 
+  save_db_schema = BashOperator(
+        task_id='exec_query',
+#           bash_command='echo "{{ ti.xcom_pull(task_ids="test-task") }}"',
+        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "select * from Country;" /user/smartadmin/schema/query_out.csv "{{ti.xcom_pull(task_ids="get_bcp_parameters")}}"',
+            )  
+    
+  get_parameters_from_kv >>  extract_db_schema >> save_db_schema
 
 
    
