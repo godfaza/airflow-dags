@@ -1,11 +1,11 @@
 # this is not production code. just useful for testing connectivity.
 from airflow.providers.odbc.hooks.odbc import OdbcHook
 from airflow import DAG
-from airflow.operators.python import PythonOperator, PythonVirtualenvOperator
+from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
 
 dag = DAG(
-    dag_id="mssql_example",
+    dag_id="odbc_example",
     default_args={},
     schedule_interval=None,
     start_date=days_ago(2),
