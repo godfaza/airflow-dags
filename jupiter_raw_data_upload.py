@@ -2,6 +2,8 @@ import datetime
 import pendulum
 
 from airflow import DAG
+from airflow.providers.odbc.hooks.odbc import OdbcHook
+from airflow.providers.apache.hdfs.hooks.webhdfs import WebHDFSHook
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
@@ -28,8 +30,19 @@ def get_parameters():
 
 def get_db_schema(**context):
     parameters = context['ti'].xcom_pull(task_ids="get_parameters_from_kv")
+    dst_path = "{}/{}".format(parameters['RawPath'],"/#MAINTENANCE/PARAMETERS.csv"
     query =  mssql_scripts.generate_db_schema_query(white_list=parameters['WhiteList'])
     print(query)
+    
+    odbc_hook = OdbcHook()
+    hdfs_hook = WebHDFSHook()
+    conn = hdfs_hook.get_conn()
+    
+    df =  odbc_hook.get_pandas_df(query)
+    csv_buffer = StringIO()
+    df.to_csv(csv_buffer, index=False)
+    
+    conn.upload(dst_path,csv_buffer)
 
 with DAG(
     dag_id='jupiter_raw_data_upload',
@@ -48,6 +61,7 @@ with DAG(
       python_callable=get_db_schema,
       provide_context=True,
     )
+    
   get_parameters_from_kv >>  extract_db_schema 
 
 
