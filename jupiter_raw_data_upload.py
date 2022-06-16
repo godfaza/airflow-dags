@@ -24,12 +24,12 @@ S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 def get_parameters():
     parameters = Variable.get("JupiterParameters",deserialize_json=True)
     print(parameters)
-#     source_name = Variable.get("SourceName")
-#     raw_path = Variable.get("RawPath")
-#     process_path = Variable.get("ProcessPath")
-#     output_path = Variable.get("OutputPath")
-#     upload_date = Variable.get("UploadDate")
-    return {}
+    return parameters
+
+def get_db_schema(**kwargs):
+    query =  mssql_scripts.generate_db_schema_query(white_list=kwargs['white_list'])
+    print(query)
+
 with DAG(
     dag_id='jupiter_raw_data_upload',
     schedule_interval=None,
@@ -40,7 +40,14 @@ with DAG(
   get_parameters_from_kv = PythonOperator(
       task_id='get_parameters_from_kv',
       python_callable=get_parameters,
-    ) 
+    )
+
+  extract_db_schema = PythonOperator(
+      task_id='extract_db_schema',
+      python_callable=get_db_schema,
+      op_kwargs={'white_list':'dbo.MANUAL;dbo.YA_DATAMART_DELTA'},
+    )
+  get_parameters_from_kv >>  extract_db_schema 
 
 
    
