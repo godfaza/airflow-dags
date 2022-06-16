@@ -31,7 +31,7 @@ def sample_select():
 
 def hdfs_test():
     hdfs_hook = WebHDFSHook()
-    conn = hdfs_hoo.get_conn()
+    conn = hdfs_hook.get_conn()
     files = conn.list('/user/smartadmin/data')
 
 PythonOperator(
