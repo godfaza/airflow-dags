@@ -43,7 +43,7 @@ def get_db_schema(**context):
     csv_buffer = StringIO()
     df.to_csv(csv_buffer, index=False)
     
-    conn.upload(dst_path,csv_buffer)
+    conn.upload(dst_path,csv_buffer.getvalue())
 
 with DAG(
     dag_id='jupiter_raw_data_upload',
