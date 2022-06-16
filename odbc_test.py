@@ -15,8 +15,10 @@ dag = DAG(
 
 def sample_select():
     odbc_hook = OdbcHook() 
-    rec = odbc_hook.get_records("SELECT * from Country;")
-    print(rec)
+#     rec = odbc_hook.get_records("SELECT * from Country;")
+    df =  odbc_hook.get_pandas_df("SELECT * from Country;")
+    print(df.head(3).to_markdown())
+#     print(rec)
 #     cnxn = odbc_hook.get_conn()
 
 #     cursor = cnxn.cursor()
