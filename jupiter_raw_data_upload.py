@@ -45,7 +45,7 @@ with DAG(
   extract_db_schema = PythonOperator(
       task_id='extract_db_schema',
       python_callable=get_db_schema,
-      op_kwargs={'white_list':{{ti.xcom_pull(task_ids="get_parameters_from_kv")["WhiteList"]}},
+      op_kwargs={{ti.xcom_pull(task_ids="get_parameters_from_kv")},
     )
   get_parameters_from_kv >>  extract_db_schema 
 
