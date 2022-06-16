@@ -1,5 +1,6 @@
 # this is not production code. just useful for testing connectivity.
 from airflow.providers.odbc.hooks.odbc import OdbcHook
+from airflow.providers.apache.hdfs.hooks.webhdfs import WebHDFSHook
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
@@ -27,6 +28,11 @@ def sample_select():
 #     while row:
 #         print(row[2])
 #         row = cursor.fetchone()
+
+def hdfs_test():
+    hdfs_hook = WebHDFSHook()
+    conn = hdfs_hoo.get_conn()
+    files = conn.list('/user/smartadmin/data')
 
 PythonOperator(
     task_id="sample_select",
