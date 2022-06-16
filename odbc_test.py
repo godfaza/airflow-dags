@@ -14,7 +14,7 @@ dag = DAG(
 )
 
 def sample_select():
-    odbc_hook = OdbcHook(conn_name_attr = "jupiter_odbc_default") 
+    odbc_hook = OdbcHook( default_conn_name = "jupiter_odbc_default") 
     cnxn = odbc_hook.get_conn()
 
     cursor = cnxn.cursor()
