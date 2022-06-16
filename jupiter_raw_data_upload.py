@@ -10,6 +10,7 @@ from airflow.operators.dummy import DummyOperator
 from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup
 import uuid
+from io import StringIO
 from airflow.providers.yandex.operators.yandexcloud_dataproc import (
     DataprocCreateClusterOperator,
     DataprocCreateHiveJobOperator,
