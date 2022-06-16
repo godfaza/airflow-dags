@@ -4,6 +4,7 @@ import pendulum
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
+from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup
 import uuid
 from airflow.providers.yandex.operators.yandexcloud_dataproc import (
