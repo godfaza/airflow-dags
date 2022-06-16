@@ -10,6 +10,7 @@ dag = DAG(
     schedule_interval=None,
     start_date=days_ago(2),
     tags=["example"],
+    catchup=False,
 )
 
 def sample_select():
