@@ -26,8 +26,9 @@ def get_parameters():
     print(parameters)
     return parameters
 
-def get_db_schema(**kwargs):
-    query =  mssql_scripts.generate_db_schema_query(white_list=kwargs['white_list'])
+def get_db_schema(**context):
+    parameters = context['ti'].xcom_pull(task_ids="get_parameters_from_kv")
+    query =  mssql_scripts.generate_db_schema_query(white_list=parameters['WhiteList'])
     print(query)
 
 with DAG(
@@ -45,7 +46,7 @@ with DAG(
   extract_db_schema = PythonOperator(
       task_id='extract_db_schema',
       python_callable=get_db_schema,
-      op_kwargs={{ti.xcom_pull(task_ids="get_parameters_from_kv")},
+      provide_context=True,
     )
   get_parameters_from_kv >>  extract_db_schema 
 
