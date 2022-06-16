@@ -33,6 +33,7 @@ def hdfs_test():
     hdfs_hook = WebHDFSHook()
     conn = hdfs_hook.get_conn()
     files = conn.list('/user/smartadmin/data')
+    print(files)
 
 PythonOperator(
     task_id="sample_select",
