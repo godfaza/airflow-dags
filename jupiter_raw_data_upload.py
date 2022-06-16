@@ -21,9 +21,12 @@ AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 
 def get_parameters():
-    my_var = Variable.get("var999")
-    print(f'My variable is: {my_var}')
-
+    source_name = Variable.get("SourceName")
+    raw_path = Variable.get("RawPath")
+    process_path = Variable.get("ProcessPath")
+    output_path = Variable.get("OutputPath")
+    upload_date = Variable.get("UploadDate")
+    return {}
 with DAG(
     dag_id='jupiter_raw_data_upload',
     schedule_interval=None,
