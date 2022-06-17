@@ -53,7 +53,12 @@ def _get_bcp_connections_string():
     
 def _generate_upload_scripts():
      parameters = context['ti'].xcom_pull(task_ids="get_parameters")
-        
+ 
+     
+     hdfs_hook = WebHDFSHook()
+     conn = hdfs_hook.get_conn()
+     conn.downlaod(dst_path,'/tmp/PARAMETERS.csv')
+     
 
 with DAG(
     dag_id='jupiter_raw_data_upload',
