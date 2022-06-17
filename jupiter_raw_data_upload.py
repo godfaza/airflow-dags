@@ -25,13 +25,13 @@ import mssql_scripts
 AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 
-def get_parameters():
+def _get_parameters():
     parameters = Variable.get("JupiterParameters",deserialize_json=True)
     print(parameters)
     return parameters
 
-def get_db_schema(**context):
-    parameters = context['ti'].xcom_pull(task_ids="get_parameters_from_kv")
+def _get_db_schema(**context):
+    parameters = context['ti'].xcom_pull(task_ids="get_parameters")
     dst_path = "{}/{}".format(parameters['RawPath'],"/#MAINTENANCE/PARAMETERS.csv")
     query =  mssql_scripts.generate_db_schema_query(white_list=parameters['WhiteList'])
     return query
@@ -46,7 +46,7 @@ def get_db_schema(**context):
     
 #     conn.upload(dst_path,'/tmp/PARAMETERS.csv')
 
-def get_bcp_connections_string():
+def _get_bcp_connections_string():
      conn = BaseHook.get_connection('jupiter_dev_mssql')
      print(f"Password: {conn.password}, Login: {conn.login}, URI: {conn.get_uri()}, Host: {conn.host}, Schema: {conn.schema}")
      return '-S {} -d {} -U {} -P {}'.format(conn.host,conn.schema,conn.login,conn.password)
@@ -58,20 +58,20 @@ with DAG(
     catchup=False,
     tags=["jupiter","dev"],
 ) as dag:
-  get_parameters_from_kv = PythonOperator(
-      task_id='get_parameters_from_kv',
-      python_callable=get_parameters,
+  get_parameters = PythonOperator(
+      task_id='get_parameters',
+      python_callable=_get_parameters,
     )
 
   extract_db_schema = PythonOperator(
       task_id='extract_db_schema',
-      python_callable=get_db_schema,
+      python_callable=_get_db_schema,
       provide_context=True,
     )
     
   get_bcp_parameters = PythonOperator(
       task_id='get_bcp_parameters',
-      python_callable=get_bcp_connections_string,
+      python_callable=_get_bcp_connections_string,
     )  
     
   save_db_schema = BashOperator(
@@ -80,7 +80,7 @@ with DAG(
         bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{{ti.xcom_pull(task_ids="extract_db_schema")}}" /user/smartadmin/schema/query_out2.csv "{{ti.xcom_pull(task_ids="get_bcp_parameters")}}" "Schema,TableName,FieldName,Position,FieldType,Size,IsNull,UpdateDate,Scale"',
             )  
     
-  get_parameters_from_kv >>  get_bcp_parameters >>  extract_db_schema >> save_db_schema
+  get_parameters >>  get_bcp_parameters >>  extract_db_schema >> save_db_schema
 
 
    
