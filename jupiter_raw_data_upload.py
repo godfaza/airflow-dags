@@ -77,7 +77,7 @@ with DAG(
   save_db_schema = BashOperator(
         task_id='exec_query',
 #           bash_command='echo "{{ ti.xcom_pull(task_ids="test-task") }}"',
-        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{{ti.xcom_pull(task_ids="extract_db_schema")}}" /user/smartadmin/schema/query_out2.csv "{{ti.xcom_pull(task_ids="get_bcp_parameters")}}"',
+        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{{ti.xcom_pull(task_ids="extract_db_schema")}}" /user/smartadmin/schema/query_out2.csv "{{ti.xcom_pull(task_ids="get_bcp_parameters")}}" "Schema,TableName,FieldName,Position,FieldType,Size,IsNull,UpdateDate,Scale"',
             )  
     
   get_parameters_from_kv >>  get_bcp_parameters >>  extract_db_schema >> save_db_schema
