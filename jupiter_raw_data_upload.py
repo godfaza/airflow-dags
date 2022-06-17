@@ -69,7 +69,7 @@ with DAG(
     )
     
   get_bcp_parameters = PythonOperator(
-      task_id='extract_db_schema',
+      task_id='get_bcp_parameters',
       python_callable=get_bcp_connections_string,
     )  
     
