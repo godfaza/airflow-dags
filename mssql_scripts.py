@@ -24,7 +24,9 @@ def generate_db_schema_query(environment=None, upload_date=None, black_list=None
     combined_list_sql = "{} AND {}".format(combined_list_sql,
                                            white_list_sql) if white_list_sql else combined_list_sql
 
-    script = """Select 
+    script = """Select 'Schema', 'TableName', 'FieldName', 'Position', 'FieldType', 'Size', 'IsNull','UpdateDate','Scale'
+                union all
+                Select 
                 Table_Schema as [Schema],
                 TABLE_NAME as TableName,
                 Column_Name as FieldName,
