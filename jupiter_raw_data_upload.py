@@ -68,12 +68,18 @@ def _get_bcp_connections_string():
     return '-S {} -d {} -U {} -P {}'.format(conn.host, conn.schema, conn.login, conn.password)
 
 
-def _generate_upload_scripts():
+def _generate_upload_scripts(**context):
     parameters = context['ti'].xcom_pull(task_ids="get_parameters")
+    schema_dataset = context['ti'].xcom_pull(task_ids="extract_db_schema")
+    
+    out_query = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',schema_dataset)
+    print(out_query)
+    
+    
 
-    hdfs_hook = WebHDFSHook()
-    conn = hdfs_hook.get_conn()
-    conn.download(dst_path, '/tmp/PARAMETERS.csv')
+#     hdfs_hook = WebHDFSHook()
+#     conn = hdfs_hook.get_conn()
+#     conn.download(dst_path, '/tmp/PARAMETERS.csv')
 
 
 with DAG(
