@@ -70,7 +70,7 @@ def _get_bcp_connections_string():
 
 def _generate_upload_scripts(**context):
     parameters = context['ti'].xcom_pull(task_ids="get_parameters")
-    schema_dataset = context['ti'].xcom_pull(task_ids="extract_db_schema")
+    schema_dataset = StringIO(context['ti'].xcom_pull(task_ids="extract_db_schema"))
     
     out_query = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',schema_dataset)
     print(out_query)
