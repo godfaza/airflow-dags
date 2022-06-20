@@ -70,6 +70,7 @@ def _get_bcp_connections_string():
 
 def _generate_upload_scripts(**context):
     parameters = context['ti'].xcom_pull(task_ids="get_parameters")
+    print(parameters)
     src_path = parameters["MaintenancePath"]+EXTRACT_ENTITIES_AUTO.csv
     hdfs_hook = WebHDFSHook()
     conn = hdfs_hook.get_conn()
