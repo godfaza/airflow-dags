@@ -28,11 +28,10 @@ with DAG(
         task_id="create_config",
         python_callable=create_config
     )
-
-    read_config = PythonOperator(
+    
+    read_config = BashOperator(
         task_id="read_config",
-        python_callable=read_config,
-        op_args=["{{ ti.xcom_pull(task_ids='create_config')['key'] }}"]
-    )
+        bash_command='echo "{{ ti.xcom_pull(task_ids='create_config')['key'] }}"',
+      )
 
     create_config >> read_config
