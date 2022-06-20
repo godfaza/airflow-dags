@@ -78,6 +78,16 @@ def _generate_upload_scripts(**context):
     
     out_query = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20','/tmp/PARAMETERS.csv')
     print(out_query)
+    return  out_query
+
+def _iterate_upload_scripts(**context):
+    parameters = context['ti'].xcom_pull(task_ids="get_parameters")
+    df = pd.read_csv(StringIO(context['ti'].xcom_pull(task_ids="generate_upload_scripts")),keep_default_na=False)
+    df = df.reset_index()  
+
+    for index, row in df.iterrows():
+     print(row['EntityName'], row['Extraction'])
+     print('#######################-----------------------#######################')
 
 
 with DAG(
@@ -116,5 +126,10 @@ with DAG(
         python_callable=_generate_upload_scripts,
         provide_context=True,
     )
+    iterate_upload_scripts = PythonOperator(
+        task_id='generate_upload_scripts',
+        python_callable=_iterate_upload_scripts,
+        provide_context=True,
+    )
 
-    get_parameters >> get_bcp_parameters >> extract_db_schema >> save_db_schema >> generate_upload_scripts
+    get_parameters >> get_bcp_parameters >> extract_db_schema >> save_db_schema >> generate_upload_scripts >> iterate_upload_scripts
