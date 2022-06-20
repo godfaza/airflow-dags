@@ -21,6 +21,7 @@ from airflow.providers.yandex.operators.yandexcloud_dataproc import (
     DataprocDeleteClusterOperator,
 )
 import cloud_scripts.mssql_scripts as mssql_scripts
+import json
 
 AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
