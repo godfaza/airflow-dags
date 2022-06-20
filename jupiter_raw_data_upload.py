@@ -75,6 +75,7 @@ with DAG(
     start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
     catchup=False,
     tags=["jupiter", "dev"],
+    render_template_as_native_obj=True,
 ) as dag:
     get_parameters = PythonOperator(
         task_id='get_parameters',
@@ -95,7 +96,7 @@ with DAG(
     save_db_schema = BashOperator(
         task_id='save_db_schema',
         #           bash_command='echo "{{ ti.xcom_pull(task_ids="test-task") }}"',
-        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{{ti.xcom_pull(task_ids="extract_db_schema")}}" {{json.loads(ti.xcom_pull(task_ids="get_bcp_parameters"))["RawPath"]}}/#MAINTENANCE/EXTRACT_ENTITIES_AUTO.csv "{{ti.xcom_pull(task_ids="get_bcp_parameters")}}" "Schema,TableName,FieldName,Position,FieldType,Size,IsNull,UpdateDate,Scale"',
+        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{{ti.xcom_pull(task_ids="extract_db_schema")}}" {{ti.xcom_pull(task_ids="get_bcp_parameters")["RawPath"]}}/#MAINTENANCE/EXTRACT_ENTITIES_AUTO.csv "{{ti.xcom_pull(task_ids="get_bcp_parameters")}}" "Schema,TableName,FieldName,Position,FieldType,Size,IsNull,UpdateDate,Scale"',
     )
 
     generate_upload_scripts = PythonOperator(
