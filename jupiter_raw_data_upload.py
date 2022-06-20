@@ -27,7 +27,8 @@ AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 
 
-def _get_parameters():
+def _get_parameters(**kwargs):
+    ti = kwargs['ti']
     parameters = {"RawPath": Variable.get("RawPath"),
                   "WhiteList": Variable.get("WhiteList")
                   }
@@ -82,6 +83,7 @@ with DAG(
     get_parameters = PythonOperator(
         task_id='get_parameters',
         python_callable=_get_parameters,
+        provide_context=True,
     )
 
     extract_db_schema = PythonOperator(
