@@ -12,6 +12,7 @@ from airflow.utils.task_group import TaskGroup
 from airflow.hooks.base_hook import BaseHook
 import uuid
 from io import StringIO
+import urllib.parse
 from airflow.providers.yandex.operators.yandexcloud_dataproc import (
     DataprocCreateClusterOperator,
     DataprocCreateHiveJobOperator,
@@ -100,7 +101,7 @@ with DAG(
     save_db_schema = BashOperator(
         task_id='save_db_schema',
         #           bash_command='echo "{{ ti.xcom_pull(task_ids="test-task") }}"',
-        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{{ti.xcom_pull(task_ids="extract_db_schema")}}" {{ti.xcom_pull(task_ids="get_parameters",key="MaintenancePath")+ds+"_"+run_id}}_EXTRACT_ENTITIES_AUTO.csv "{{ti.xcom_pull(task_ids="get_bcp_parameters")}}" "Schema,TableName,FieldName,Position,FieldType,Size,IsNull,UpdateDate,Scale"',
+        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{{ti.xcom_pull(task_ids="extract_db_schema")}}" {{ti.xcom_pull(task_ids="get_parameters",key="MaintenancePath")+ds+"_"+urllib.parse.quote_plus(run_id)}}_EXTRACT_ENTITIES_AUTO.csv "{{ti.xcom_pull(task_ids="get_bcp_parameters")}}" "Schema,TableName,FieldName,Position,FieldType,Size,IsNull,UpdateDate,Scale"',
     )
 
     generate_upload_scripts = PythonOperator(
