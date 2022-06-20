@@ -30,12 +30,15 @@ S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 
 def _get_parameters(**kwargs):
     ti = kwargs['ti']
+    ds = kwargs['ds']
+    run_id = urllib.parse.quote_plus(kwargs['run_id'])
+    
     parameters = {"RawPath": Variable.get("RawPath"),
                   "WhiteList": Variable.get("WhiteList")
                   }
     print(parameters)
     
-    ti.xcom_push(key="MaintenancePath", value=parameters["RawPath"]+"/#MAINTENANCE/")
+    ti.xcom_push(key="MaintenancePath", value="{}{}{}_{}_".format(parameters["RawPath"],"/#MAINTENANCE/",ds,run_id))
     return parameters
 
 
@@ -101,7 +104,7 @@ with DAG(
     save_db_schema = BashOperator(
         task_id='save_db_schema',
         #           bash_command='echo "{{ ti.xcom_pull(task_ids="test-task") }}"',
-        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{{ti.xcom_pull(task_ids="extract_db_schema")}}" {{ti.xcom_pull(task_ids="get_parameters",key="MaintenancePath")+ds+"_"+urllib.parse.quote_plus(run_id)}}_EXTRACT_ENTITIES_AUTO.csv "{{ti.xcom_pull(task_ids="get_bcp_parameters")}}" "Schema,TableName,FieldName,Position,FieldType,Size,IsNull,UpdateDate,Scale"',
+        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{{ti.xcom_pull(task_ids="extract_db_schema")}}" {{ti.xcom_pull(task_ids="get_parameters",key="MaintenancePath")}}EXTRACT_ENTITIES_AUTO.csv "{{ti.xcom_pull(task_ids="get_bcp_parameters")}}" "Schema,TableName,FieldName,Position,FieldType,Size,IsNull,UpdateDate,Scale"',
     )
 
     generate_upload_scripts = PythonOperator(
