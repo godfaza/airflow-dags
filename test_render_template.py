@@ -32,7 +32,7 @@ with DAG(
     read_config = PythonOperator(
         task_id="read_config",
         python_callable=read_config,
-        op_args=["{{ ti.xcom_pull(task_ids='create_config') }}"]
+        op_args=["{{ ti.xcom_pull(task_ids='create_config')['key'] }}"]
     )
 
     create_config >> read_config
