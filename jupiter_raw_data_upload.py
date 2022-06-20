@@ -34,7 +34,7 @@ def _get_parameters(**kwargs):
                   }
     print(parameters)
     
-    ti.xcom_push(key="MaintenancePath", value="/#MAINTENANCE/{}_{}_".format(ds,run_id))
+    ti.xcom_push(key="MaintenancePath", value="/#MAINTENANCE/{{ ti }}_{{ run_id }}_"
     return parameters
 
 
