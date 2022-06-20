@@ -70,16 +70,13 @@ def _get_bcp_connections_string():
 
 def _generate_upload_scripts(**context):
     parameters = context['ti'].xcom_pull(task_ids="get_parameters")
-    schema_dataset = StringIO(context['ti'].xcom_pull(task_ids="extract_db_schema"))
+    src_path = parameters["MaintenancePath"]+EXTRACT_ENTITIES_AUTO.csv
+    hdfs_hook = WebHDFSHook()
+    conn = hdfs_hook.get_conn()
+    conn.download(src_path, '/tmp/PARAMETERS.csv')
     
-    out_query = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',schema_dataset)
+    out_query = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20','/tmp/PARAMETERS.csv')
     print(out_query)
-    
-    
-
-#     hdfs_hook = WebHDFSHook()
-#     conn = hdfs_hook.get_conn()
-#     conn.download(dst_path, '/tmp/PARAMETERS.csv')
 
 
 with DAG(
