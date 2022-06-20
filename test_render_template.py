@@ -1,3 +1,4 @@
+import pendulum
 from airflow import DAG
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
@@ -20,7 +21,7 @@ def read_config(config):
 with DAG(
     "test_render_template",
     schedule_interval=None,
-    start_date=datetime.today() - timedelta(days=3),
+    start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
     render_template_as_native_obj=True
 ) as dag:
     create_config = PythonOperator(
