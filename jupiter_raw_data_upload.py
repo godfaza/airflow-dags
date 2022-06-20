@@ -127,7 +127,7 @@ with DAG(
         provide_context=True,
     )
     iterate_upload_scripts = PythonOperator(
-        task_id='generate_upload_scripts',
+        task_id='iterate_upload_scripts',
         python_callable=_iterate_upload_scripts,
         provide_context=True,
     )
