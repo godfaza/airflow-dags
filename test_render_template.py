@@ -30,6 +30,6 @@ with DAG(
     )
     read_config = BashOperator(
         task_id="read_config",
-        bash_command='echo "{{ ti.xcom_pull(task_ids='create_config')['key'] }}"',
+        bash_command='echo "{{ ti.xcom_pull(task_ids='create_config')['key'] }}" ',
       )
     create_config >> read_config
