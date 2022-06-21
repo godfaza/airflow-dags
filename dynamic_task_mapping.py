@@ -16,5 +16,8 @@ def consumer(arg):
     print(list(arg))
 
 
-with DAG(dag_id="dynamic-map", start_date=datetime(2022, 4, 2)) as dag:
+with DAG(dag_id="dynamic-map", 
+         start_date=datetime(2022, 4, 2),
+         interval = None
+        ) as dag:
     consumer.expand(arg=make_list())
