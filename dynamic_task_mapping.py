@@ -20,4 +20,7 @@ with DAG(dag_id="dynamic-map",
          start_date=datetime(2022, 4, 2),
          interval = None
         ) as dag:
-    consumer.expand(arg=make_list())
+      BashOperator.partial(task_id="bash", do_xcom_push=False).expand(
+       bash_command=["echo 1", "echo 2"]
+    )
+#     consumer.expand(arg=make_list())
