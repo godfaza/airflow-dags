@@ -13,6 +13,7 @@ from airflow.hooks.base_hook import BaseHook
 import uuid
 from io import StringIO
 import urllib.parse
+import subprocess
 from airflow.providers.yandex.operators.yandexcloud_dataproc import (
     DataprocCreateClusterOperator,
     DataprocCreateHiveJobOperator,
@@ -84,11 +85,17 @@ def _generate_upload_scripts(**context):
 def _iterate_upload_scripts(**context):
     parameters = context['ti'].xcom_pull(task_ids="get_parameters")
     df = pd.read_csv(StringIO(context['ti'].xcom_pull(task_ids="generate_upload_scripts")),keep_default_na=False)
-    df = df.reset_index()  
+    df = df.reset_index()
+    bcp_parameters = context['ti'].xcom_pull(task_ids="get_bcp_parameters")
 
     for index, row in df.iterrows():
      print(row['EntityName'], row['Extraction'])
-     print('#######################-----------------------#######################')
+     dst_path = "{}/{}.csv".format(parameters["RawPath"],row['EntityName'])
+     command = 'cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{query}" {dst_path} "{bcp_parameters}" '.format(query=row['EntityName'],dst_path=dst_path,bcp_parameters=bcp_parameters)
+     print(command)
+     ret = subprocess.run(command, capture_output=True, shell=True)
+     print(ret)
+#      print('#######################-----------------------#######################')
 
 
 with DAG(
