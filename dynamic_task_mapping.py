@@ -9,7 +9,7 @@ from airflow.decorators import dag, task
 def make_list():
     # This can also be from an API call, checking a database, -- almost anything you like, as long as the
     # resulting list/dictionary can be stored in the current XCom backend.
-    return ["DS1","DS2","DS3"]
+    return ["echo DS1","echo DS2","echo DS3"]
 
 
 @task
@@ -22,6 +22,6 @@ with DAG(dag_id="dynamic-map",
          schedule_interval=None,
         ) as dag:
       echo_op=BashOperator.partial(task_id="bash", do_xcom_push=False).expand(
-       bash_command='echo {{make_list()}} '
+       bash_command=make_list()
     )
 #     consumer.expand(arg=make_list())
