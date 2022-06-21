@@ -1,5 +1,6 @@
 import json
 import pendulum
+from airflow import DAG
 from airflow.decorators import dag, task
 
 @task
