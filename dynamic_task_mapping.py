@@ -1,20 +1,16 @@
-from datetime import datetime
-
 from airflow import DAG
-from airflow.decorators import task
+from airflow.utils.dates import days_ago
 
+import random
 
-with DAG(dag_id="simple_mapping", start_date=datetime(2022, 3, 4)) as dag:
+with DAG(dag_id='dynamic_task_mapping_example', start_date=days_ago(2), catchup=False) as dag:
 
-    @task
-    def add_one(x):
-        return x + 1
+    @dag.task
+    def make_list():
+        return [i + 1 for i in range(random.randint(2, 4))]
 
-    @task
-    def sum_it(values):
-        total = sum(values)
-        
-        print(f"Total was {total}")
+    @dag.task
+    def consumer(value):
+        print(repr(value))
 
-    added_values = add_one.expand(x=[1, 2, 3])
-    sum_it(added_values)
+    consumer.expand(value=make_list())
