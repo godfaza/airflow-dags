@@ -2,24 +2,17 @@ import json
 import pendulum
 from airflow.decorators import dag, task
 
-@dag(
-    schedule_interval=None,
-    start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
-    catchup=False,
-    tags=['example'],
-)
-def tutorial_taskflow_api_etl():
-    @task
-    def add_one(x):
-        return x + 1
+@task
+def make_list():
+    # This can also be from an API call, checking a database, -- almost anything you like, as long as the
+    # resulting list/dictionary can be stored in the current XCom backend.
+    return [1, 2, {"a": "b"}, "str"]
 
-    @task
-    def sum_it(values):
-        total = sum(values)
-        
-        print(f"Total was {total}")
 
-    added_values = add_one.expand(x=[1, 2, 3])
-    sum_it(added_values)
-    
-tutorial_etl_dag = tutorial_taskflow_api_etl()
+@task
+def consumer(arg):
+    print(list(arg))
+
+
+with DAG(dag_id="dynamic-map", start_date=datetime(2022, 4, 2)) as dag:
+    consumer.expand(arg=make_list())
