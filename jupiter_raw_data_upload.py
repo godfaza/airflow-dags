@@ -91,7 +91,7 @@ def _iterate_upload_scripts(**context):
     for index, row in df.iterrows():
      print(row['EntityName'], row['Extraction'])
      dst_path = "{}/{}.csv".format(parameters["RawPath"],row['EntityName'])
-     command = 'cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{query}" {dst_path} "{bcp_parameters}" '.format(query=row['EntityName'],dst_path=dst_path,bcp_parameters=bcp_parameters)
+     command = 'cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{query}" {dst_path} "{bcp_parameters}" '.format(query=row['Extraction'],dst_path=dst_path,bcp_parameters=bcp_parameters)
      print(command)
      ret = subprocess.run(command, capture_output=True, shell=True)
      print(ret)
