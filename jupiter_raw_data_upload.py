@@ -99,7 +99,7 @@ def _iterate_upload_scripts(**context):
 
 
 with DAG(
-    dag_id='jupiter_raw_data_upload',
+    dag_id='jupiter_raw_data_upload_old',
     schedule_interval=None,
     start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
     catchup=False,
