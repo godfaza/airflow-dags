@@ -2,6 +2,7 @@ import json
 import pendulum
 from datetime import datetime
 from airflow import DAG
+from airflow.operators.bash import BashOperator
 from airflow.decorators import dag, task
 
 @task
