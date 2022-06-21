@@ -19,7 +19,7 @@ def consumer(arg):
 
 with DAG(dag_id="dynamic-map", 
          start_date=datetime(2022, 4, 2),
-         interval = None
+         schedule_interval=None,
         ) as dag:
       echo_op=BashOperator.partial(task_id="bash", do_xcom_push=False).expand(
        bash_command=["echo 1", "echo 2"]
