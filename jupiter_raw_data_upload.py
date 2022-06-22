@@ -66,7 +66,7 @@ def copy_data_db_to_hdfs(query,dst_dir,dst_file):
 @task    
 def generate_upload_scripts(src_dir,src_file):
     src_path = f"{src_dir}{src_file}"
-    tmp_path = f'/tmp/{src_file}
+    tmp_path = f"/tmp/{src_file}"
     print(src_path)
     
     hdfs_hook = WebHDFSHook()
