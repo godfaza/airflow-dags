@@ -89,10 +89,7 @@ def generate_table_select_query(current_upload_date, last_upload_date, actual_sc
             {"Schema": table[0], "EntityName": table[1], "Extraction": script, "Method": method})
 
     result_df = pd.DataFrame(result)
-    csv_buffer = StringIO()
-    result_df.to_csv(csv_buffer, index=False)
-
-    print(csv_buffer.getvalue())
-    return csv_buffer.getvalue()
+    result_json = result_df.to_json(orient="table")
+    return result_json
 
 
