@@ -45,20 +45,25 @@ def get_parameters(**kwargs):
     return parameters
 
 @task
-def extract_db_schema(parameters: dict):
-    dst_path = "{}{}".format(parameters['MaintenancePath'],"PARAMETERS.csv")
+def generate_schema_query(parameters: dict):
     query = mssql_scripts.generate_db_schema_query(
         white_list=parameters['WhiteList'])
     
+    return query
+
+@task
+def copy_data_db_to_hdfs(query,dst_dir,dst_file):
+    dst_path = f"{dst_dir}{dst_file}"
     odbc_hook = OdbcHook()
     hdfs_hook = WebHDFSHook()
     conn = hdfs_hook.get_conn()
 
     df =  odbc_hook.get_pandas_df(query)
-    df.to_csv('/tmp/PARAMETERS.csv', index=False)
-    conn.upload(dst_path,'/tmp/PARAMETERS.csv')
+    df.to_csv(f'/tmp/{dst_file}', index=False)
+    conn.upload(dst_path,f'/tmp/{dst_file}')
     
-    return query
+    
+
 
 
 
@@ -101,7 +106,8 @@ with DAG(
 ) as dag:
     
     parameters = get_parameters()
-    db_schema = extract_db_schema(parameters)
+    schema_query = generate_schema_query(parameters)
+    extract_db_schema(schema_query,parameters["RawPath"],"PARAMETERS.csv")
     
 #     extract_db_schema = PythonOperator(
 #         task_id='extract_db_schema',
