@@ -46,7 +46,7 @@ def get_parameters(**kwargs):
 
 @task
 def extract_db_schema(parameters: dict):
-    dst_path = "{}/{}".format(parameters['MaintenancePath'],"PARAMETERS.csv")
+    dst_path = "{}{}".format(parameters['MaintenancePath'],"PARAMETERS.csv")
     query = mssql_scripts.generate_db_schema_query(
         white_list=parameters['WhiteList'])
     
