@@ -49,17 +49,19 @@ def extract_db_schema(parameters: dict):
     dst_path = "{}/{}".format(parameters['MaintenancePath'],"PARAMETERS.csv")
     query = mssql_scripts.generate_db_schema_query(
         white_list=parameters['WhiteList'])
+    
+    odbc_hook = OdbcHook()
+    hdfs_hook = WebHDFSHook()
+    conn = hdfs_hook.get_conn()
+
+    df =  odbc_hook.get_pandas_df(query)
+    df.to_csv('/tmp/PARAMETERS.csv', index=False)
+    conn.upload(dst_path,'/tmp/PARAMETERS.csv')
+    
     return query
-#     print(query)
 
-#     odbc_hook = OdbcHook()
-#     hdfs_hook = WebHDFSHook()
-#     conn = hdfs_hook.get_conn()
 
-#     df =  odbc_hook.get_pandas_df(query)
-#     df.to_csv('/tmp/PARAMETERS.csv', index=False)
 
-#     conn.upload(dst_path,'/tmp/PARAMETERS.csv')
 
 # def _generate_upload_scripts(**context):
 #     parameters = context['ti'].xcom_pull(task_ids="get_parameters")
