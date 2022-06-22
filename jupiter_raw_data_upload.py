@@ -103,6 +103,8 @@ with DAG(
     tags=["jupiter", "dev"],
     render_template_as_native_obj=True,
 ) as dag:
+    
+    parameters = get_parameters()
     extract_db_schema = PythonOperator(
         task_id='extract_db_schema',
         python_callable=_extract_db_schema,
@@ -131,4 +133,4 @@ with DAG(
         provide_context=True,
     )
 
-    get_parameters >> get_bcp_parameters >> extract_db_schema >> save_db_schema >> generate_upload_scripts >> iterate_upload_scripts
+    parameters >> get_bcp_parameters >> extract_db_schema >> save_db_schema >> generate_upload_scripts >> iterate_upload_scripts
