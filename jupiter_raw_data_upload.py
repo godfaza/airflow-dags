@@ -73,7 +73,7 @@ def generate_upload_scripts(src_dir,src_file):
     conn = hdfs_hook.get_conn()
     conn.download(src_path, tmp_path)
     
-    out_query = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',tmp_path')
+    out_query = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',tmp_path)
     print(out_query)
     return  out_query
 
