@@ -2,8 +2,10 @@ import datetime
 import pendulum
 
 from airflow import DAG
+from airflow.decorators import dag, task
 from airflow.providers.odbc.hooks.odbc import OdbcHook
 from airflow.providers.apache.hdfs.hooks.webhdfs import WebHDFSHook
+from airflow.providers.yandex.operators.yandexcloud_dataproc import  DataprocCreatePysparkJobOperator
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
@@ -14,14 +16,7 @@ import uuid
 from io import StringIO
 import urllib.parse
 import subprocess
-from airflow.providers.yandex.operators.yandexcloud_dataproc import (
-    DataprocCreateClusterOperator,
-    DataprocCreateHiveJobOperator,
-    DataprocCreateMapReduceJobOperator,
-    DataprocCreatePysparkJobOperator,
-    DataprocCreateSparkJobOperator,
-    DataprocDeleteClusterOperator,
-)
+
 import cloud_scripts.mssql_scripts as mssql_scripts
 import json
 import pandas as pd
@@ -29,14 +24,18 @@ import pandas as pd
 AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 
-
-def _get_parameters(**kwargs):
+@task
+def get_parameters(**kwargs):
     ti = kwargs['ti']
     ds = kwargs['ds']
     run_id = urllib.parse.quote_plus(kwargs['run_id'])
     
-    parameters = {"RawPath": Variable.get("RawPath"),
-                  "WhiteList": Variable.get("WhiteList")
+    raw_path = Variable.get("RawPath")
+    white_list = Variable.get("WhiteList")
+    
+    parameters = {"RawPath": raw_path,
+                  "WhiteList": white_list,
+                  "MaintenancePath":"{}{}{}_{}_".format(raw_path,"/#MAINTENANCE/",ds,run_id)
                   }
     print(parameters)
     
@@ -106,12 +105,6 @@ with DAG(
     tags=["jupiter", "dev"],
     render_template_as_native_obj=True,
 ) as dag:
-    get_parameters = PythonOperator(
-        task_id='get_parameters',
-        python_callable=_get_parameters,
-        provide_context=True,
-    )
-
     extract_db_schema = PythonOperator(
         task_id='extract_db_schema',
         python_callable=_extract_db_schema,
