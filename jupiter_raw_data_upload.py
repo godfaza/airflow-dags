@@ -105,7 +105,7 @@ with DAG(
     parameters = get_parameters()
     schema_query = generate_schema_query(parameters)
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")
-    generate_upload_scripts(parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")                                                      
+    gen_scripts = generate_upload_scripts(parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")                                                      
     
 #     extract_db_schema = PythonOperator(
 #         task_id='extract_db_schema',
