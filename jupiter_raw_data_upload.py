@@ -44,7 +44,7 @@ def get_parameters(**kwargs):
     print(parameters)
     return parameters
 
-
+@task
 def extract_db_schema(parameters):
     dst_path = "{}/{}".format(parameters['MaintenancePath'],"PARAMETERS.csv")
     query = mssql_scripts.generate_db_schema_query(
