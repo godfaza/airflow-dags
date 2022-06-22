@@ -32,6 +32,6 @@ with DAG(dag_id="dynamic-map",
         provide_context=True,
     )
       echo_op=BashOperator.partial(task_id="bash", do_xcom_push=False).expand(
-       bash_command=self.make_list(),
+       bash_command=dag.make_list(),
     )
 #     consumer.expand(arg=make_list())
