@@ -63,23 +63,22 @@ def copy_data_db_to_hdfs(query,dst_dir,dst_file):
     df.to_csv(f'/tmp/{dst_file}', index=False)
     conn.upload(dst_path,f'/tmp/{dst_file}')
     
+    return True
     
 
-
-
-
-
-# def _generate_upload_scripts(**context):
-#     parameters = context['ti'].xcom_pull(task_ids="get_parameters")
-#     src_path = context['ti'].xcom_pull(task_ids="get_parameters",key="MaintenancePath")+"EXTRACT_ENTITIES_AUTO.csv"
-#     print(src_path)
-#     hdfs_hook = WebHDFSHook()
-#     conn = hdfs_hook.get_conn()
-#     conn.download(src_path, '/tmp/PARAMETERS.csv')
+@task    
+def generate_upload_scripts(prev_task,src_dir,src_file):
+    src_path = f"{src_dir}{src_file}"
+    tmp_path = f"/tmp/{src_file}"
+    print(src_path)
     
-#     out_query = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20','/tmp/PARAMETERS.csv')
-#     print(out_query)
-#     return  out_query
+    hdfs_hook = WebHDFSHook()
+    conn = hdfs_hook.get_conn()
+    conn.download(src_path, tmp_path)
+    
+    out_query = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',tmp_path)
+    print(out_query)
+    return  out_query
 
 # def _iterate_upload_scripts(**context):
 #     parameters = context['ti'].xcom_pull(task_ids="get_parameters")
@@ -108,7 +107,8 @@ with DAG(
     
     parameters = get_parameters()
     schema_query = generate_schema_query(parameters)
-    copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"PARAMETERS.csv")
+    extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")
+    generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")                                                      
     
 #     extract_db_schema = PythonOperator(
 #         task_id='extract_db_schema',
