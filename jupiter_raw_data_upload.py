@@ -33,9 +33,13 @@ def get_parameters(**kwargs):
     raw_path = Variable.get("RawPath")
     white_list = Variable.get("WhiteList")
     
+    db_conn = BaseHook.get_connection('jupiter_dev_mssql')
+    bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
+    
     parameters = {"RawPath": raw_path,
                   "WhiteList": white_list,
-                  "MaintenancePath":"{}{}{}_{}_".format(raw_path,"/#MAINTENANCE/",ds,run_id)
+                  "MaintenancePath":"{}{}{}_{}_".format(raw_path,"/#MAINTENANCE/",ds,run_id),
+                  "BcpParameters": bcp_parameters,
                   }
     print(parameters)
     return parameters
@@ -58,14 +62,6 @@ def _extract_db_schema(**context):
 #     df.to_csv('/tmp/PARAMETERS.csv', index=False)
 
 #     conn.upload(dst_path,'/tmp/PARAMETERS.csv')
-
-
-def _get_bcp_connections_string():
-    conn = BaseHook.get_connection('jupiter_dev_mssql')
-    print(
-        f"Password: {conn.password}, Login: {conn.login}, URI: {conn.get_uri()}, Host: {conn.host}, Schema: {conn.schema}")
-    return '-S {} -d {} -U {} -P {}'.format(conn.host, conn.schema, conn.login, conn.password)
-
 
 def _generate_upload_scripts(**context):
     parameters = context['ti'].xcom_pull(task_ids="get_parameters")
@@ -110,12 +106,6 @@ with DAG(
         python_callable=_extract_db_schema,
         provide_context=True,
     )
-
-    get_bcp_parameters = PythonOperator(
-        task_id='get_bcp_parameters',
-        python_callable=_get_bcp_connections_string,
-    )
-
     save_db_schema = BashOperator(
         task_id='save_db_schema',
         #           bash_command='echo "{{ ti.xcom_pull(task_ids="test-task") }}"',
@@ -133,4 +123,4 @@ with DAG(
         provide_context=True,
     )
 
-    parameters >> get_bcp_parameters >> extract_db_schema >> save_db_schema >> generate_upload_scripts >> iterate_upload_scripts
+    parameters >> extract_db_schema >> save_db_schema >> generate_upload_scripts >> iterate_upload_scripts
