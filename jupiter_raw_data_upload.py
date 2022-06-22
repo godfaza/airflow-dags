@@ -38,8 +38,6 @@ def get_parameters(**kwargs):
                   "MaintenancePath":"{}{}{}_{}_".format(raw_path,"/#MAINTENANCE/",ds,run_id)
                   }
     print(parameters)
-    
-    ti.xcom_push(key="MaintenancePath", value="{}{}{}_{}_".format(parameters["RawPath"],"/#MAINTENANCE/",ds,run_id))
     return parameters
 
 
