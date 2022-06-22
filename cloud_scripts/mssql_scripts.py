@@ -80,10 +80,10 @@ def generate_table_select_query(current_upload_date, last_upload_date, actual_sc
         if table[1] in ["BaseLine", "IncrementalPromo", "YA_DATAMART_DELTA"]:
             method = METHOD_DELTA
 
-            script = "SELECT {fields} , (SELECT count(*) FROM {schema}.[{table_name}] WHERE LastModifiedDate BETWEEN CONVERT(nvarchar(20),'{last_modified_date}', 120) AND CONVERT(nvarchar(20),'{current_upload_date}', 120)) [$QCCount] FROM {schema}.[{table_name}] t WHERE t.LastModifiedDate BETWEEN CONVERT(nvarchar(20),'{last_modified_date}', 120) AND CONVERT(nvarchar(20),'{current_upload_date}', 120)".format(
+            script = "SELECT {fields} , (SELECT count(*) FROM {schema}.[{table_name}] WHERE LastModifiedDate BETWEEN CONVERT(nvarchar(20),'{last_modified_date}', 120) AND CONVERT(nvarchar(20),'{current_upload_date}', 120)) [#QCCount] FROM {schema}.[{table_name}] t WHERE t.LastModifiedDate BETWEEN CONVERT(nvarchar(20),'{last_modified_date}', 120) AND CONVERT(nvarchar(20),'{current_upload_date}', 120)".format(
                 fields=fields, schema=table[0], table_name=table[1], last_modified_date=last_upload_date, current_upload_date=current_upload_date)
         else:
-            script = "SELECT {fields} , (SELECT count(*) FROM {schema}.[{table_name}]) [$QCCount] FROM {schema}.[{table_name}]".format(
+            script = "SELECT {fields} , (SELECT count(*) FROM {schema}.[{table_name}]) [#QCCount] FROM {schema}.[{table_name}]".format(
                 fields=fields, schema=table[0], table_name=table[1])
 
         result.append(
