@@ -52,9 +52,8 @@ def generate_schema_query(parameters: dict):
     return query
 
 @task
-def copy_data_db_to_hdfs(query,parameters: dict,dst_file):
+def copy_data_db_to_hdfs(query,dst_dir,dst_file):
     
-    dst_dir = parameters["MaintenancePath"]
     dst_path = f"{dst_dir}{dst_file}"
     odbc_hook = OdbcHook()
     hdfs_hook = WebHDFSHook()
@@ -109,7 +108,7 @@ with DAG(
     
     parameters = get_parameters()
     schema_query = generate_schema_query(parameters)
-    copy_data_db_to_hdfs(schema_query,parameters,"PARAMETERS.csv")
+    copy_data_db_to_hdfs(schema_query,dict(parameters)["MaintenancePath"],"PARAMETERS.csv")
     
 #     extract_db_schema = PythonOperator(
 #         task_id='extract_db_schema',
