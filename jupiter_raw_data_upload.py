@@ -63,7 +63,7 @@ def copy_data_db_to_hdfs(query,dst_dir,dst_file):
     df.to_csv(f'/tmp/{dst_file}', index=False)
     conn.upload(dst_path,f'/tmp/{dst_file}')
     
-    return
+    return True
     
 
 @task    
