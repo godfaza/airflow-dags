@@ -32,6 +32,7 @@ def get_parameters(**kwargs):
     
     raw_path = Variable.get("RawPath")
     white_list = Variable.get("WhiteList")
+    upload_path = f'{raw_path}/{ds}/'
     
     db_conn = BaseHook.get_connection('jupiter_dev_mssql')
     bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
@@ -40,6 +41,7 @@ def get_parameters(**kwargs):
                   "WhiteList": white_list,
                   "MaintenancePath":"{}{}{}_{}_".format(raw_path,"/#MAINTENANCE/",ds,run_id),
                   "BcpParameters": bcp_parameters,
+                  "UploadPath": upload_path,
                   }
     print(parameters)
     return parameters
@@ -67,7 +69,7 @@ def copy_data_db_to_hdfs(query,dst_dir,dst_file):
     
 
 @task    
-def generate_upload_scripts(prev_task,src_dir,src_file):
+def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameters):
     src_path = f"{src_dir}{src_file}"
     tmp_path = f"/tmp/{src_file}"
     print(src_path)
@@ -76,9 +78,11 @@ def generate_upload_scripts(prev_task,src_dir,src_file):
     conn = hdfs_hook.get_conn()
     conn.download(src_path, tmp_path)
     
-    out_query = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',tmp_path)
-    print(out_query)
-    return  out_query
+    queries = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',tmp_path)
+    
+    scripts_list = ['cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{}" {}{}/{} "{}" '.format(x["Extraction"],upload_path,x["Schema"],x["EntityName"],bcp_parameters) for x in queries]
+    print(scripts_list)
+    return  scripts_list
 
 # def _iterate_upload_scripts(**context):
 #     parameters = context['ti'].xcom_pull(task_ids="get_parameters")
@@ -108,8 +112,10 @@ with DAG(
     parameters = get_parameters()
     schema_query = generate_schema_query(parameters)
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")
-    generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")                                                      
-    
+#     generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"])                                                      
+    upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=False).expand(
+       bash_command=generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"])  ,
+    )
 #     extract_db_schema = PythonOperator(
 #         task_id='extract_db_schema',
 #         python_callable=_extract_db_schema,
