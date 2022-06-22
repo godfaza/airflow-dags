@@ -62,6 +62,9 @@ def copy_data_db_to_hdfs(query,dst_dir,dst_file):
     df =  odbc_hook.get_pandas_df(query)
     df.to_csv(f'/tmp/{dst_file}', index=False)
     conn.upload(dst_path,f'/tmp/{dst_file}')
+    
+    return dst_file
+    
 
 @task    
 def generate_upload_scripts(src_dir,src_file):
@@ -105,7 +108,7 @@ with DAG(
     parameters = get_parameters()
     schema_query = generate_schema_query(parameters)
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")
-    gen_scripts = generate_upload_scripts(parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")                                                      
+    generate_upload_scripts(parameters["MaintenancePath"],extract_schema)                                                      
     
 #     extract_db_schema = PythonOperator(
 #         task_id='extract_db_schema',
