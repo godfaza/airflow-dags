@@ -24,7 +24,7 @@ import pandas as pd
 AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 
-@task
+@task(multiple_outputs=True)
 def get_parameters(**kwargs):
     ti = kwargs['ti']
     ds = kwargs['ds']
