@@ -108,7 +108,7 @@ with DAG(
     
     parameters = get_parameters()
     schema_query = generate_schema_query(parameters)
-    copy_data_db_to_hdfs(schema_query,json.loads(parameters)["MaintenancePath"],"PARAMETERS.csv")
+    copy_data_db_to_hdfs(schema_query,parameters,"PARAMETERS.csv")
     
 #     extract_db_schema = PythonOperator(
 #         task_id='extract_db_schema',
