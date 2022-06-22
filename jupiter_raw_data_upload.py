@@ -54,7 +54,7 @@ def generate_schema_query(parameters: dict):
 @task
 def copy_data_db_to_hdfs(query,parameters: dict,dst_file):
     
-    dst_dir = f"{parameters["MaintenancePath"]}{dst_file}"
+    dst_dir = parameters["MaintenancePath"]
     dst_path = f"{dst_dir}{dst_file}"
     odbc_hook = OdbcHook()
     hdfs_hook = WebHDFSHook()
