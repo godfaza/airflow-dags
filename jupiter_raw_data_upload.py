@@ -115,4 +115,6 @@ with DAG(
     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
        bash_command=generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"])  ,
     )
-    monitoring_results = save_monitoring_result.expand(input=XComArg(upload_tables))
+    
+#     monitoring_results = save_monitoring_result.expand(input=XComArg(upload_tables))
+    monitoring_results = save_monitoring_result(upload_tables)
