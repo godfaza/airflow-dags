@@ -109,7 +109,7 @@ with DAG(
     parameters = get_parameters()
     schema_query = generate_schema_query(parameters)
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")
-    upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=False).expand(
+    upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
        bash_command=generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"])  ,
     )
     monitoring_results = save_monitoring_result.expand(x=XComArg(upload_tables))
