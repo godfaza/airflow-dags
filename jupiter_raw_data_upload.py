@@ -26,7 +26,7 @@ S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 BCP_SEPARATOR = '0x01'
 
 def separator_convert_hex_to_string(sep):
-    sep_map = {hex:'0x01', str:'\x01'}
+    sep_map = {'0x01':'\x01'}
     return sep_map.get(sep, sep)
 
 @task(multiple_outputs=True)
