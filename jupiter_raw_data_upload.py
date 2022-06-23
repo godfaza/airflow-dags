@@ -90,13 +90,15 @@ def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameter
     
     queries = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',tmp_path)
     
-    scripts_list = ['cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{}" {}{}/{}/{}/{}.csv "{}" {} "{}" '.format(x["Extraction"].replace("\'\'","\'\\'").replace("\n"," "),upload_path,x["Schema"],x["EntityName"],x["Method"],x["EntityName"],bcp_parameters,BCP_SEPARATOR,x["Columns"].replace(",",separator_convert_hex_to_string(BCP_SEPARATOR))) for x in queries]
+    scripts_list = ['cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{}" {}{}/{}/{}/{}.csv "{}" {} "{}" '.format(x["Extraction"].replace("\'\'","\'\\'").replace("\n"," "),upload_path,x["Schema"],x["EntityName"],x["Method"],x["EntityName"],'',BCP_SEPARATOR,x["Columns"].replace(",",separator_convert_hex_to_string(BCP_SEPARATOR))) for x in queries]
     print(scripts_list)
     return  scripts_list
 
 @task
-def save_monitoring_result(x):
-    print(x)
+def save_monitoring_result(input):
+    print(input)
+    prev_task_result = json.loads(input)
+    
 
 with DAG(
     dag_id='jupiter_raw_data_upload',
@@ -113,4 +115,4 @@ with DAG(
     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
        bash_command=generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"])  ,
     )
-    monitoring_results = save_monitoring_result.expand(x=XComArg(upload_tables))
+    monitoring_results = save_monitoring_result.expand(XComArg(upload_tables))
