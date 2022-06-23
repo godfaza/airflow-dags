@@ -118,3 +118,5 @@ with DAG(
     
 #     monitoring_results = save_monitoring_result.expand(input=XComArg(upload_tables))
     monitoring_results = save_monitoring_result(XComArg(upload_tables))
+    
+    upload_tables >> monitoring_results
