@@ -53,6 +53,7 @@ def generate_table_select_query(current_upload_date, last_upload_date, actual_sc
         print(table)
         print()
         fields_list = []
+        column_name_list = []
         for column in columns:
             if column["FieldType"] == 'nvarchar':
                 fields_list.append("REPLACE(REPLACE([{field_name}],CHAR(10),''),CHAR(13),'') [{field_name}]".format(
@@ -74,7 +75,14 @@ def generate_table_select_query(current_upload_date, last_upload_date, actual_sc
                 fields_list.append("[{field_name}]".format(
                     field_name=column["FieldName"]))
 
+            column_name_list.append(column["FieldName"])        
+
         fields = ",".join(fields_list)
+
+        column_name_list.append("#QCCount")
+        column_names = ",".join(column_name_list)
+
+
 
         method = METHOD_FULL
         if table[1] in ["BaseLine", "IncrementalPromo", "YA_DATAMART_DELTA"]:
@@ -87,7 +95,7 @@ def generate_table_select_query(current_upload_date, last_upload_date, actual_sc
                 fields=fields, schema=table[0], table_name=table[1])
 
         result.append(
-            {"Schema": table[0], "EntityName": table[1], "Extraction": script, "Method": method})
+            {"Schema": table[0], "EntityName": table[1], "Extraction": script, "Method": method, "Columns":column_names})
 
     result_df = pd.DataFrame(result)
     result_json = json.loads(result_df.to_json(orient="records"))
