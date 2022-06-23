@@ -21,9 +21,13 @@ import cloud_scripts.mssql_scripts as mssql_scripts
 import json
 import pandas as pd
 
+
+MSSQL_CONNECTION_NAME = 'odbc_default'
+HDFS_CONNECTION_NAME = 'webhdfs_default'
 AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 BCP_SEPARATOR = '0x01'
+
 
 def separator_convert_hex_to_string(sep):
     sep_map = {'0x01':'\x01'}
@@ -39,7 +43,7 @@ def get_parameters(**kwargs):
     white_list = Variable.get("WhiteList")
     upload_path = f'{raw_path}/{ds}/'
     
-    db_conn = BaseHook.get_connection('jupiter_dev_mssql')
+    db_conn = BaseHook.get_connection(MSSQL_CONNECTION_NAME)
     bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
     
     parameters = {"RawPath": raw_path,
@@ -62,8 +66,8 @@ def generate_schema_query(parameters: dict):
 def copy_data_db_to_hdfs(query,dst_dir,dst_file):
     
     dst_path = f"{dst_dir}{dst_file}"
-    odbc_hook = OdbcHook()
-    hdfs_hook = WebHDFSHook()
+    odbc_hook = OdbcHook(MSSQL_CONNECTION_NAME)
+    hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
     conn = hdfs_hook.get_conn()
 
     df =  odbc_hook.get_pandas_df(query)
