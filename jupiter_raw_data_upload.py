@@ -97,7 +97,7 @@ def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameter
 @task
 def save_monitoring_result(input):
     print(input)
-    prev_task_result = json.loads(input)
+
     
 
 with DAG(
