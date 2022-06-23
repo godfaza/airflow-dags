@@ -93,6 +93,10 @@ def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameter
     print(scripts_list)
     return  scripts_list
 
+@task
+def save_monitoring_result(x):
+    print(x)
+
 with DAG(
     dag_id='jupiter_raw_data_upload',
     schedule_interval=None,
@@ -108,3 +112,4 @@ with DAG(
     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=False).expand(
        bash_command=generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"])  ,
     )
+    monitoring_results = save_monitoring_result.expand(x=upload_tables)
