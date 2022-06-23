@@ -37,11 +37,12 @@ def separator_convert_hex_to_string(sep):
 def get_parameters(**kwargs):
     ti = kwargs['ti']
     ds = kwargs['ds']
+    execution_date = kwargs['execution_date'].strftime("%Y/%m/%d")
     run_id = urllib.parse.quote_plus(kwargs['run_id'])
     
     raw_path = Variable.get("RawPath")
     white_list = Variable.get("WhiteList")
-    upload_path = f'{raw_path}/{ds}/'
+    upload_path = f'{raw_path}/{execution_date}/'
     
     db_conn = BaseHook.get_connection(MSSQL_CONNECTION_NAME)
     bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
@@ -89,7 +90,7 @@ def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameter
     
     queries = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',tmp_path)
     
-    scripts_list = ['cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{}" {}{}/{}.csv "{}" {} "{}" '.format(x["Extraction"].replace("\'\'","\'\\'").replace("\n"," "),upload_path,x["Schema"],x["EntityName"],bcp_parameters,BCP_SEPARATOR,x["Columns"].replace(",",separator_convert_hex_to_string(BCP_SEPARATOR))) for x in queries]
+    scripts_list = ['cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{}" {}{}/{}/{}/{}.csv "{}" {} "{}" '.format(x["Extraction"].replace("\'\'","\'\\'").replace("\n"," "),upload_path,x["Schema"],x["EntityName"],x["Method"],x["EntityName"],bcp_parameters,BCP_SEPARATOR,x["Columns"].replace(",",separator_convert_hex_to_string(BCP_SEPARATOR))) for x in queries]
     print(scripts_list)
     return  scripts_list
 
