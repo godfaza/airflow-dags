@@ -23,6 +23,7 @@ import pandas as pd
 
 AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
+BCP_SEPARATOR = '0x01'
 
 @task(multiple_outputs=True)
 def get_parameters(**kwargs):
@@ -80,7 +81,7 @@ def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameter
     
     queries = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',tmp_path)
     
-    scripts_list = ['cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{}" {}{}/{}.csv "{}" "{}" '.format(x["Extraction"].replace("\'\'","\'\\'").replace("\n"," "),upload_path,x["Schema"],x["EntityName"],bcp_parameters,x["Columns"]) for x in queries]
+    scripts_list = ['cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{}" {}{}/{}.csv "{}" "{}" '.format(x["Extraction"].replace("\'\'","\'\\'").replace("\n"," "),upload_path,x["Schema"],x["EntityName"],bcp_parameters,BCP_SEPARATOR,x["Columns"].replace(",",BCP_SEPARATOR)) for x in queries]
     print(scripts_list)
     return  scripts_list
 
