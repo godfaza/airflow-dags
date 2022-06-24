@@ -81,6 +81,20 @@ def copy_data_db_to_hdfs(query,dst_dir,dst_file):
     conn.upload(dst_path,f'/tmp/{dst_file}')
     
     return True
+
+@task    
+def get_entities(prev_task,src_dir,src_file,upload_path,bcp_parameters):
+    src_path = f"{src_dir}{src_file}"
+    tmp_path = f"/tmp/{src_file}"
+    print(src_path)
+    
+    hdfs_hook = WebHDFSHook()
+    conn = hdfs_hook.get_conn()
+    conn.download(src_path, tmp_path)
+    
+    entities = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',tmp_path)
+  
+    return entities
     
 
 @task    
@@ -148,7 +162,7 @@ with DAG(
     parameters = get_parameters()
     schema_query = generate_schema_query(parameters)
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")
-    start_mon = start_monitoring.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]))
+    start_mon = start_monitoring.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = get_entities(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]))
     end_mon = end_monitoring.partial(dst_dir=parameters["MaintenancePath"]).expand(input = start_mon)
     #     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
 #        bash_command=generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"])  ,
