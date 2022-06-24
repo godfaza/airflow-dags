@@ -114,7 +114,7 @@ def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameter
     return  scripts_list
 
 @task
-def start_monitoring(run_id=None,dst_dir,upload_path,input):
+def start_monitoring(dst_dir,upload_path,input,run_id=None):
     schema = input["Schema"]
     entity_name = input["EntityName"]
     method = input["Method"]
