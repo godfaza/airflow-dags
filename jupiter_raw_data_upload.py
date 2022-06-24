@@ -110,7 +110,7 @@ def start_monitoring(run_id,dst_dir,upload_path,input):
                         'TargetFormat':'CSV',
                         'StartDate':pendulum.now(),
                         'Duration':0,
-                        'Status':,STATUS_PROCESS
+                        'Status':STATUS_PROCESS,
                         'ErrorDescription':None
                        }])
     df.to_csv(monitoring_file_path, index=False)
