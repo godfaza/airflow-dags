@@ -100,10 +100,10 @@ def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameter
     return  scripts_list
 
 @task
-def start_monitoring(run_id,dst_dir,upload_path,input):
+def start_monitoring(dst_dir,upload_path,input):
     monitoring_file_path=f'{dst_dir}{MONITORING_DETAIL_DIR_PREFIX}/{input["Schema"]}_{input["EntityName"]}.csv'
     temp_file_path =f'/tmp/{input["Schema"]}_{input["EntityName"]}.csv'
-    df = pd.DataFrame([{'PipelineRunId':run_id,
+    df = pd.DataFrame([{'PipelineRunId':urllib.parse.quote_plus(run_id),
                         'Schema':input["Schema"],
                         'EntityName':input["EntityName"],
                         'TargetPath':f'{upload_path}{input["Schema"]}/{input["EntityName"]}/{input["Method"]}/{input["EntityName"]}.csv',
@@ -144,7 +144,7 @@ with DAG(
     parameters = get_parameters()
     schema_query = generate_schema_query(parameters)
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")
-    start_mon = start_monitoring.partial(run_id=parameters["RunId"],dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]))
+    start_mon = start_monitoring.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]))
     end_mon = end_monitoring.partial(dst_dir=parameters["MaintenancePath"]).expand(input = start_mon)
     #     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
 #        bash_command=generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"])  ,
