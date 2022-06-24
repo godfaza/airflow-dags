@@ -28,7 +28,9 @@ AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 BCP_SEPARATOR = '0x01'
 
-MONITORING_DETAIL_DIR_PREFIX='MONITORING_DETAIL.CSV'
+MONITORING_DETAIL_DIR_PREFIX = 'MONITORING_DETAIL.CSV'
+EXTRACT_ENTITIES_AUTO_FILE = 'EXTRACT_ENTITIES_AUTO.csv'
+
 STATUS_FAILURE='FAILURE'
 STATUS_COMPLETE='COMPLETE'
 STATUS_PROCESS='PROCESS'
@@ -83,7 +85,7 @@ def copy_data_db_to_hdfs(query,dst_dir,dst_file):
     return True
 
 @task    
-def get_entities(prev_task,src_dir,src_file,upload_path,bcp_parameters):
+def generate_upload_script(prev_task,src_dir,src_file,upload_path,bcp_parameters):
     src_path = f"{src_dir}{src_file}"
     tmp_path = f"/tmp/{src_file}"
     print(src_path)
@@ -98,13 +100,13 @@ def get_entities(prev_task,src_dir,src_file,upload_path,bcp_parameters):
     
 
 @task    
-def generate_upload_script(src_dir,src_file,upload_path,bcp_parameters,entity):
+def generate_bcp_script(src_dir,src_file,upload_path,bcp_parameters,entity):
     src_path = f"{src_dir}{src_file}"
     tmp_path = f"/tmp/{src_file}"
     print(src_path)
         
-    script = 'cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{}" {}{}/{}/{}/{}.csv "{}" {} "{}" '.format("select proc from table1;",upload_path,entity["Schema"],entity["EntityName"],entity["Method"],entity["EntityName"],bcp_parameters,BCP_SEPARATOR,entity["Columns"].replace(",",separator_convert_hex_to_string(BCP_SEPARATOR)))
-    print(script)
+    script = 'cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{}" {}{}/{}/{}/{}.csv "{}" {} "{}" '.format(entity["Extraction"].replace("\'\'","\'\\'").replace("\n"," "),upload_path,entity["Schema"],entity["EntityName"],entity["Method"],entity["EntityName"],bcp_parameters,BCP_SEPARATOR,entity["Columns"].replace(",",separator_convert_hex_to_string(BCP_SEPARATOR)))
+
     return  script
 
 @task
@@ -132,15 +134,13 @@ def start_monitoring(dst_dir,upload_path,input,run_id=None):
     conn.upload(monitoring_file_path,temp_file_path)
     
     return input
-#     l = list(input)
-#     print(l)
+
 
 @task
 def end_monitoring(dst_dir,input):
     print(input)
     return input
-#     l = list(input)
-#     print(l)
+
 
     
 
@@ -152,17 +152,18 @@ with DAG(
     tags=["jupiter", "dev"],
     render_template_as_native_obj=True,
 ) as dag:
-    
+# Get dag parameters from vault    
     parameters = get_parameters()
+#     Generate schema extraction query
     schema_query = generate_schema_query(parameters)
-    extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")
-    start_mon = start_monitoring.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = get_entities(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]))
+#     Extract db schema and save result to hdfs
+    extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE)
+#    Create entities list and start monitoring for them
+    start_mon = start_monitoring.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_script(extract_schema,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE,parameters["UploadPath"],parameters["BcpParameters"]))
+# Upload entities from sql to hdfs in parallel
     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
-       bash_command= generate_upload_script.partial(src_dir=parameters["MaintenancePath"],src_file="EXTRACT_ENTITIES_AUTO.csv",upload_path=parameters["UploadPath"],bcp_parameters=parameters["BcpParameters"]).expand(entity=start_mon),
+       bash_command= generate_bcp_script.partial(src_dir=parameters["MaintenancePath"],src_file=EXTRACT_ENTITIES_AUTO_FILE,upload_path=parameters["UploadPath"],bcp_parameters=parameters["BcpParameters"]).expand(entity=start_mon),
     )
+#     Check entities upload results and update monitoring files
     end_mon = end_monitoring.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
-    
 
-#     monitoring_results = save_monitoring_result(XComArg(upload_tables))
-    
-#     upload_tables >> monitoring_results
