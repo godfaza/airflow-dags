@@ -102,7 +102,7 @@ def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameter
 @task
 def start_monitoring(run_id,dst_dir,upload_path,input):
     monitoring_file_path=f'{dst_dir}{MONITORING_DETAIL_DIR_PREFIX}/{input["Schema"]}_{input["EntityName"]}.csv'
-    temp_file_path =f'/tmp/{{input["Schema"]}_{input["EntityName"]}.csv}'
+    temp_file_path =f'/tmp/{input["Schema"]}_{input["EntityName"]}.csv'
     df = pd.DataFrame([{'PipelineRunId':run_id,
                         'Schema':input["Schema"],
                         'EntityName':input["EntityName"],
