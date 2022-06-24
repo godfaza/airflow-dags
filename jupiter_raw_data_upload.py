@@ -95,14 +95,14 @@ def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameter
     return  scripts_list
 
 @task
-def start_monitoring(input):
+def start_monitoring(dst_dir, input):
     print(input)
     return input
 #     l = list(input)
 #     print(l)
 
 @task
-def end_monitoring(input):
+def end_monitoring(dst_dir,input):
     print(input)
     return input
 #     l = list(input)
@@ -122,8 +122,8 @@ with DAG(
     parameters = get_parameters()
     schema_query = generate_schema_query(parameters)
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")
-    start_mon = start_monitoring.expand(input = generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]))
-    end_mon = end_monitoring.expand(input = start_mon)
+    start_mon = start_monitoring.partial(dst_dir=parameters["MaintenancePath"]).expand(input = generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]))
+    end_mon = end_monitoring.partial(dst_dir=parameters["MaintenancePath"]).expand(input = start_mon)
     #     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
 #        bash_command=generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"])  ,
 #     )
