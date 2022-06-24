@@ -157,7 +157,7 @@ with DAG(
     schema_query = generate_schema_query(parameters)
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")
     start_mon = start_monitoring.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = get_entities(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]))
-    upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]).expand(
+    upload_tables=BashOperator.partial(parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"],task_id="upload_tables", do_xcom_push=True).expand(
        bash_command=generate_upload_script(start_mon)  ,
     )
     end_mon = end_monitoring.partial(dst_dir=parameters["MaintenancePath"]).expand(XComArg(upload_tables))
