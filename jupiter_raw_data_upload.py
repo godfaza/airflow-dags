@@ -131,7 +131,7 @@ def start_monitoring(dst_dir,upload_path,input,run_id=None):
                         'Status':STATUS_PROCESS,
                         'ErrorDescription':None
                        }])
-    df.to_csv(monitoring_file_path, index=False)
+    df.to_csv(temp_file_path, index=False)
     
     hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
     conn = hdfs_hook.get_conn()
