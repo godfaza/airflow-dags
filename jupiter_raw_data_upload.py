@@ -97,12 +97,14 @@ def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameter
 @task
 def start_monitoring(input):
     print(input)
+    return input
 #     l = list(input)
 #     print(l)
 
 @task
 def end_monitoring(input):
     print(input)
+    return input
 #     l = list(input)
 #     print(l)
 
