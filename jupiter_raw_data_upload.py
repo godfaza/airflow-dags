@@ -28,6 +28,10 @@ AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 BCP_SEPARATOR = '0x01'
 
+MONITORING_DETAIL_DIR_PREFIX='MONITORING_DETAIL.CSV'
+STATUS_FAILURE='FAILURE'
+STATUS_COMPLETE='COMPLETE'
+STATUS_PROCESS='PROCESS'
 
 def separator_convert_hex_to_string(sep):
     sep_map = {'0x01':'\x01'}
@@ -52,6 +56,7 @@ def get_parameters(**kwargs):
                   "MaintenancePath":"{}{}{}_{}_".format(raw_path,"/#MAINTENANCE/",ds,run_id),
                   "BcpParameters": bcp_parameters,
                   "UploadPath": upload_path,
+                  "RunId":run_id,
                   }
     print(parameters)
     return parameters
@@ -95,8 +100,25 @@ def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameter
     return  scripts_list
 
 @task
-def start_monitoring(dst_dir, input):
-    print(input)
+def start_monitoring(run_id,dst_dir,upload_path,input):
+    monitoring_file_path=f"{dst_dir}{MONITORING_DETAIL_DIR_PREFIX}/{input["Schema"]}_{input["EntityName"]}.csv"
+    temp_file_path =f'/tmp/{{input["Schema"]}_{input["EntityName"]}.csv}'
+    df = pd.DataFrame([{'PipelineRunId':run_id,
+                        'Schema':input["Schema"],
+                        'EntityName':input["EntityName"],
+                        'TargetPath':f'{upload_path}{input["Schema"]}/{input["EntityName"]}/{input["Method"]}/{input["EntityName"]}.csv',
+                        'TargetFormat':'CSV',
+                        'StartDate':pendulum.now(),
+                        'Duration':0,
+                        'Status':,STATUS_PROCESS
+                        'ErrorDescription':None
+                       }])
+    df.to_csv(monitoring_file_path, index=False)
+    
+    hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
+    conn = hdfs_hook.get_conn()
+    conn.upload(monitoring_file_path,temp_file_path)
+    
     return input
 #     l = list(input)
 #     print(l)
@@ -122,7 +144,7 @@ with DAG(
     parameters = get_parameters()
     schema_query = generate_schema_query(parameters)
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")
-    start_mon = start_monitoring.partial(dst_dir=parameters["MaintenancePath"]).expand(input = generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]))
+    start_mon = start_monitoring.partial(run_id=parameters["RunId"],dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]))
     end_mon = end_monitoring.partial(dst_dir=parameters["MaintenancePath"]).expand(input = start_mon)
     #     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
 #        bash_command=generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"])  ,
