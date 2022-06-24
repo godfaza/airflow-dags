@@ -98,20 +98,14 @@ def get_entities(prev_task,src_dir,src_file,upload_path,bcp_parameters):
     
 
 @task    
-def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameters):
+def generate_upload_script(src_dir,src_file,upload_path,bcp_parameters,entity):
     src_path = f"{src_dir}{src_file}"
     tmp_path = f"/tmp/{src_file}"
     print(src_path)
-    
-    hdfs_hook = WebHDFSHook()
-    conn = hdfs_hook.get_conn()
-    conn.download(src_path, tmp_path)
-    
-    queries = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',tmp_path)
-    
-    scripts_list = ['cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{}" {}{}/{}/{}/{}.csv "{}" {} "{}" '.format("select proc from table1;",upload_path,x["Schema"],x["EntityName"],x["Method"],x["EntityName"],bcp_parameters,BCP_SEPARATOR,x["Columns"].replace(",",separator_convert_hex_to_string(BCP_SEPARATOR))) for x in queries]
-    print(scripts_list)
-    return  scripts_list
+        
+    script = 'cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{}" {}{}/{}/{}/{}.csv "{}" {} "{}" '.format("select proc from table1;",upload_path,entity["Schema"],entity["EntityName"],entity["Method"],entity["EntityName"],bcp_parameters,BCP_SEPARATOR,entity["Columns"].replace(",",separator_convert_hex_to_string(BCP_SEPARATOR)))
+    print(script)
+    return  script
 
 @task
 def start_monitoring(dst_dir,upload_path,input,run_id=None):
@@ -119,7 +113,7 @@ def start_monitoring(dst_dir,upload_path,input,run_id=None):
     entity_name = input["EntityName"]
     method = input["Method"]
     monitoring_file_path=f'{dst_dir}{MONITORING_DETAIL_DIR_PREFIX}/{schema}_{entity_name}.csv'
-    print(monitoring_file_path)
+
     temp_file_path =f'/tmp/{schema}_{entity_name}.csv'
     df = pd.DataFrame([{'PipelineRunId':urllib.parse.quote_plus(run_id),
                         'Schema':schema,
@@ -163,10 +157,10 @@ with DAG(
     schema_query = generate_schema_query(parameters)
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv")
     start_mon = start_monitoring.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = get_entities(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]))
-    end_mon = end_monitoring.partial(dst_dir=parameters["MaintenancePath"]).expand(input = start_mon)
-    #     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
-#        bash_command=generate_upload_scripts(extract_schema,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"])  ,
-#     )
+    upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True,parameters["MaintenancePath"],"EXTRACT_ENTITIES_AUTO.csv",parameters["UploadPath"],parameters["BcpParameters"]).expand(
+       bash_command=generate_upload_script(start_mon)  ,
+    )
+    end_mon = end_monitoring.partial(dst_dir=parameters["MaintenancePath"]).expand(XComArg(upload_tables))
     
 
 #     monitoring_results = save_monitoring_result(XComArg(upload_tables))
