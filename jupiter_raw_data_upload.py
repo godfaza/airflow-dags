@@ -120,7 +120,7 @@ def start_monitoring(dst_dir,upload_path,input):
     method = input["Method"]
     monitoring_file_path=f'{dst_dir}{MONITORING_DETAIL_DIR_PREFIX}/{schema}_{entity_name}.csv'
     print(monitoring_file_path)
-    temp_file_path =f'/tmp/{shema}_{entity_name}.csv'
+    temp_file_path =f'/tmp/{schema}_{entity_name}.csv'
     df = pd.DataFrame([{'PipelineRunId':urllib.parse.quote_plus(run_id),
                         'Schema':schema,
                         'EntityName':entity_name,
