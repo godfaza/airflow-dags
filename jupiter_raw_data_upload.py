@@ -101,13 +101,16 @@ def generate_upload_scripts(prev_task,src_dir,src_file,upload_path,bcp_parameter
 
 @task
 def start_monitoring(dst_dir,upload_path,input):
-    monitoring_file_path=f'{dst_dir}{MONITORING_DETAIL_DIR_PREFIX}/{input["Schema"]}_{input["EntityName"]}.csv'
+    schema = input["Schema"]
+    entity_name = input["EntityName"]
+    method = input["Method"]
+    monitoring_file_path=f'{dst_dir}{MONITORING_DETAIL_DIR_PREFIX}/{schema}_{entity_name}.csv'
     print(monitoring_file_path)
-    temp_file_path =f'/tmp/{input["Schema"]}_{input["EntityName"]}.csv'
+    temp_file_path =f'/tmp/{shema}_{entity_name}.csv'
     df = pd.DataFrame([{'PipelineRunId':urllib.parse.quote_plus(run_id),
-                        'Schema':input["Schema"],
-                        'EntityName':input["EntityName"],
-                        'TargetPath':f'{upload_path}{input["Schema"]}/{input["EntityName"]}/{input["Method"]}/{input["EntityName"]}.csv',
+                        'Schema':schema,
+                        'EntityName':entity_name,
+                        'TargetPath':f'{upload_path}{schema}/{entity_name}/{method}/{entity_name}.csv',
                         'TargetFormat':'CSV',
                         'StartDate':pendulum.now(),
                         'Duration':0,
