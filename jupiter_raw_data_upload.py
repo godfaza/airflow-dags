@@ -138,7 +138,25 @@ def start_monitoring(dst_dir,upload_path,input,run_id=None):
 
 @task
 def end_monitoring(dst_dir,input):
-    print(json.loads(input))
+    prev_tast_output = json.loads(input)
+    
+    schema = prev_tast_output["Schema"]
+    entity_name = prev_tast_output["EntityName"]
+    
+    temp_file_path =f'/tmp/{schema}_{entity_name}.csv'
+    monitoring_file_path=f'{dst_dir}{MONITORING_DETAIL_DIR_PREFIX}/{schema}_{entity_name}.csv'
+    
+    hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
+    conn = hdfs_hook.get_conn()
+    conn.download(monitoring_file_path,temp_file_path)
+    
+    df = pd.read_csv(temp_file_path, keep_default_na=False)
+    df['Status'] = STATUS_COMPLETE
+    df['Duration'] = 1
+    
+    df.to_csv(temp_file_path, index=False)
+    conn.upload(monitoring_file_path,temp_file_path)
+    
     return input
 
 
