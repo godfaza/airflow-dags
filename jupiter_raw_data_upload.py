@@ -142,6 +142,7 @@ def end_monitoring(dst_dir,input):
     
     schema = prev_tast_output["Schema"]
     entity_name = prev_tast_output["EntityName"]
+    prev_task_result = prev_tast_output["Result"]
     
     temp_file_path =f'/tmp/{schema}_{entity_name}.csv'
     monitoring_file_path=f'{dst_dir}{MONITORING_DETAIL_DIR_PREFIX}/{schema}_{entity_name}.csv'
@@ -151,7 +152,7 @@ def end_monitoring(dst_dir,input):
     conn.download(monitoring_file_path,temp_file_path)
     
     df = pd.read_csv(temp_file_path, keep_default_na=False)
-    df['Status'] = STATUS_COMPLETE
+    df['Status'] = STATUS_COMPLETE if prev_task_result else STATUS_FAILURE
     df['Duration'] = 1
     
     df.to_csv(temp_file_path, index=False)
