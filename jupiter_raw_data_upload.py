@@ -155,7 +155,7 @@ def end_monitoring(dst_dir,input):
     df['Duration'] = 1
     
     df.to_csv(temp_file_path, index=False)
-    conn.upload(monitoring_file_path,temp_file_path)
+    conn.upload(monitoring_file_path,temp_file_path,overwrite=True)
     
     return input
 
