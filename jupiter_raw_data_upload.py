@@ -191,7 +191,7 @@ def get_upload_result(dst_dir,input):
     print(monintoring_details)
     return not any(d['Result'] == False for d in monintoring_details)
      
-def _end_monitoring(status):    
+def _end_monitoring(dst_dir,status):    
     monitoring_file_path=f'{dst_dir}{MONITORING_FILE}'
     temp_file_path =f'/tmp/{MONITORING_FILE}'
 
@@ -210,12 +210,12 @@ def _check_upload_result(**kwargs):
     return ['end_monitoring_success'] if kwargs['input'] else ['end_monitoring_failure']
 
 @task(task_id="end_monitoring_success")
-def end_monitoring_success():
-    _end_monitoring(True)
+def end_monitoring_success(dst_dir):
+    _end_monitoring(dst_dir,True)
 
 @task(task_id="end_monitoring_failure")
-def end_monitoring_failure():
-    _end_monitoring(False)  
+def end_monitoring_failure(dst_dir):
+    _end_monitoring(dst_dir,False)  
 
 with DAG(
     dag_id='jupiter_raw_data_upload',
@@ -252,5 +252,5 @@ with DAG(
         task_id='join',
         trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS,
     )
-    branch_task  >> [end_monitoring_success(),end_monitoring_failure()] >> join
+    branch_task  >> [end_monitoring_success(dst_dir=parameters["MaintenancePath"]),end_monitoring_failure(dst_dir=parameters["MaintenancePath"])] >> join
     
