@@ -5,11 +5,14 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from datetime import datetime
 from airflow.configuration import ensure_secrets_loaded
+from airflow.providers.hashicorp.secrets.vault import VaultBackend
 
 def print_var():
     my_var = Variable.get("var999")
     print(f'My variable is: {my_var}')
-    print(ensure_secrets_loaded())
+    for secrets_backend in ensure_secrets_loaded():
+      if isinstance(secrets_backend, VaultBackend):
+        print(secrets_backend.vault_client)
 #     Variable.update("var999", "airflow_update")
     
 
