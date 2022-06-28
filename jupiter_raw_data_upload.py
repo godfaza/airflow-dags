@@ -159,7 +159,7 @@ def start_monitoring_detail(dst_dir,upload_path,input,run_id=None):
     return input
 
 
-@task(trigger_rule=TriggerRule.ALL_DONE)
+@task(trigger_rule=TriggerRule.ALWAYS)
 def end_monitoring_detail(dst_dir,input):
     prev_tast_output = json.loads(input)
     
