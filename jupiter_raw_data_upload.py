@@ -30,6 +30,7 @@ BCP_SEPARATOR = '0x01'
 
 MONITORING_DETAIL_DIR_PREFIX = 'MONITORING_DETAIL.CSV'
 EXTRACT_ENTITIES_AUTO_FILE = 'EXTRACT_ENTITIES_AUTO.csv'
+MONITORING_FILE = 'MONITORING.csv'
 
 STATUS_FAILURE='FAILURE'
 STATUS_COMPLETE='COMPLETE'
@@ -49,6 +50,7 @@ def get_parameters(**kwargs):
     raw_path = Variable.get("RawPath")
     white_list = Variable.get("WhiteList")
     upload_path = f'{raw_path}/{execution_date}/'
+    system_name = Variable.get("SystemName")
     
     db_conn = BaseHook.get_connection(MSSQL_CONNECTION_NAME)
     bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
@@ -59,6 +61,7 @@ def get_parameters(**kwargs):
                   "BcpParameters": bcp_parameters,
                   "UploadPath": upload_path,
                   "RunId":run_id,
+                  "SystemName":system_name,
                   }
     print(parameters)
     return parameters
@@ -108,6 +111,23 @@ def generate_bcp_script(src_dir,src_file,upload_path,bcp_parameters,entity):
     script = 'cp -r /tmp/data/src/. ~/ && chmod +x ~/exec_query.sh && ~/exec_query.sh "{}" {}{}/{}/{}/{}.csv "{}" {} {} "{}" '.format(entity["Extraction"].replace("\'\'","\'\\'").replace("\n"," "),upload_path,entity["Schema"],entity["EntityName"],entity["Method"],entity["EntityName"],bcp_parameters,BCP_SEPARATOR,entity["Schema"],entity["Columns"].replace(",",separator_convert_hex_to_string(BCP_SEPARATOR)))
 
     return  script
+
+@task
+def start_monitoring(dst_dir,system_name,run_id=None):
+    monitoring_file_path=f'{dst_dir}{MONITORING_FILE}.csv'
+
+    temp_file_path =f'/tmp/{MONITORING_FILE}.csv'
+    df = pd.DataFrame([{'PipelineRunId':urllib.parse.quote_plus(run_id),
+                        'SystemName':system_name,
+                        'StartDate':pendulum.now(),
+                        'EndDate':None,
+                        'Status':STATUS_PROCESS
+                       }])
+    df.to_csv(temp_file_path, index=False)
+    
+    hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
+    conn = hdfs_hook.get_conn()
+    conn.upload(monitoring_file_path,temp_file_path)
 
 @task
 def start_monitoring_detail(dst_dir,upload_path,input,run_id=None):
@@ -161,7 +181,7 @@ def end_monitoring_detail(dst_dir,input):
     return input
 
 @task
-def end_monitoring(input):
+def end_monitoring(dst_dir,input):
     print(list(input))
 
 
@@ -181,13 +201,14 @@ with DAG(
     schema_query = generate_schema_query(parameters)
 #     Extract db schema and save result to hdfs
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE)
+    start_mon=start_monitoring(extract_schema,dst_dir=parameters["MaintenancePath"],system_name=parameters["SystemName"])
 #    Create entities list and start monitoring for them
-    start_mon = start_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_script(extract_schema,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE,parameters["UploadPath"],parameters["BcpParameters"]))
+    start_mon_detail = start_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_script(start_mon,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE,parameters["UploadPath"],parameters["BcpParameters"]))
 # Upload entities from sql to hdfs in parallel
     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
-       bash_command= generate_bcp_script.partial(src_dir=parameters["MaintenancePath"],src_file=EXTRACT_ENTITIES_AUTO_FILE,upload_path=parameters["UploadPath"],bcp_parameters=parameters["BcpParameters"]).expand(entity=start_mon),
+       bash_command= generate_bcp_script.partial(src_dir=parameters["MaintenancePath"],src_file=EXTRACT_ENTITIES_AUTO_FILE,upload_path=parameters["UploadPath"],bcp_parameters=parameters["BcpParameters"]).expand(entity=start_mon_detail),
     )
 #     Check entities upload results and update monitoring files
-    end_mon = end_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
-    end_monitoring(input=end_mon)
+    end_mon_detail = end_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
+    end_monitoring(dst_dir=parameters["MaintenancePath"],input=end_mon)
     
