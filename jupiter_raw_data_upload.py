@@ -3,6 +3,7 @@ import pendulum
 
 from airflow import DAG, XComArg
 from airflow.decorators import dag, task
+from airflow.utils import TriggerRule
 from airflow.providers.odbc.hooks.odbc import OdbcHook
 from airflow.providers.apache.hdfs.hooks.webhdfs import WebHDFSHook
 from airflow.providers.yandex.operators.yandexcloud_dataproc import  DataprocCreatePysparkJobOperator
@@ -182,8 +183,8 @@ def end_monitoring_detail(dst_dir,input):
     
     return input
 
-@task(trigger_rule=TriggerRule.ALL_DONE)
-def end_monitoring(dst_dir,input):
+@task(trigger_rule=TriggerRule.ALL_SUCCESS)
+def end_monitoring_success(dst_dir,input):
     print(list(input))
     monitoring_file_path=f'{dst_dir}{MONITORING_FILE}'
     temp_file_path =f'/tmp/{MONITORING_FILE}'
