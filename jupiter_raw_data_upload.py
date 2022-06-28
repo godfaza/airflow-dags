@@ -191,31 +191,31 @@ def get_upload_result(dst_dir,input):
     print(monintoring_details)
     return not any(d['Result'] == False for d in monintoring_details)
      
-    
-#     monitoring_file_path=f'{dst_dir}{MONITORING_FILE}'
-#     temp_file_path =f'/tmp/{MONITORING_FILE}'
+def _end_monitoring(status):    
+    monitoring_file_path=f'{dst_dir}{MONITORING_FILE}'
+    temp_file_path =f'/tmp/{MONITORING_FILE}'
 
-#     hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
-#     conn = hdfs_hook.get_conn()
-#     conn.download(monitoring_file_path,temp_file_path)
+    hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
+    conn = hdfs_hook.get_conn()
+    conn.download(monitoring_file_path,temp_file_path)
     
-#     df = pd.read_csv(temp_file_path, keep_default_na=False)
-#     df['Status'] = STATUS_FAILURE
-#     df['EndDate'] = pendulum.now()
+    df = pd.read_csv(temp_file_path, keep_default_na=False)
+    df['Status'] = STATUS_SUCCESS if status else STATUS_FAILURE 
+    df['EndDate'] = pendulum.now()
     
-#     df.to_csv(temp_file_path, index=False)
-#     conn.upload(monitoring_file_path,temp_file_path,overwrite=True)    
+    df.to_csv(temp_file_path, index=False)
+    conn.upload(monitoring_file_path,temp_file_path,overwrite=True)    
 
 def _check_upload_result(**kwargs):
     return ['end_monitoring_success'] if kwargs['input'] else ['end_monitoring_failure']
 
 @task(task_id="end_monitoring_success")
 def end_monitoring_success():
-    print(1)
+    _end_monitoring(True)
 
 @task(task_id="end_monitoring_failure")
 def end_monitoring_failure():
-    print(2)    
+    _end_monitoring(False)  
 
 with DAG(
     dag_id='jupiter_raw_data_upload',
