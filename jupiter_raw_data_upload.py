@@ -110,7 +110,7 @@ def generate_bcp_script(src_dir,src_file,upload_path,bcp_parameters,entity):
     return  script
 
 @task
-def start_monitoring(dst_dir,upload_path,input,run_id=None):
+def start_monitoring_detail(dst_dir,upload_path,input,run_id=None):
     schema = input["Schema"]
     entity_name = input["EntityName"]
     method = input["Method"]
@@ -137,7 +137,7 @@ def start_monitoring(dst_dir,upload_path,input,run_id=None):
 
 
 @task
-def end_monitoring(dst_dir,input):
+def end_monitoring_detail(dst_dir,input):
     prev_tast_output = json.loads(input)
     
     schema = prev_tast_output["Schema"]
@@ -178,11 +178,10 @@ with DAG(
 #     Extract db schema and save result to hdfs
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE)
 #    Create entities list and start monitoring for them
-    start_mon = start_monitoring.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_script(extract_schema,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE,parameters["UploadPath"],parameters["BcpParameters"]))
+    start_mon = start_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_script(extract_schema,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE,parameters["UploadPath"],parameters["BcpParameters"]))
 # Upload entities from sql to hdfs in parallel
     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
        bash_command= generate_bcp_script.partial(src_dir=parameters["MaintenancePath"],src_file=EXTRACT_ENTITIES_AUTO_FILE,upload_path=parameters["UploadPath"],bcp_parameters=parameters["BcpParameters"]).expand(entity=start_mon),
     )
 #     Check entities upload results and update monitoring files
-    end_mon = end_monitoring.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
-
+    end_mon = end_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
