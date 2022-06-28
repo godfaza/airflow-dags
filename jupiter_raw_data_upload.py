@@ -240,6 +240,6 @@ with DAG(
     end_mon_success = end_monitoring_success()
     branch_task = BranchPythonOperator(
     task_id='branching',
-    python_callable=_check_upload_result(upload_result),
+    python_callable=_check_upload_result,
     )
     
