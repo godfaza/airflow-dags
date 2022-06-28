@@ -210,5 +210,5 @@ with DAG(
     )
 #     Check entities upload results and update monitoring files
     end_mon_detail = end_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
-    end_monitoring(dst_dir=parameters["MaintenancePath"],input=end_mon)
+    end_monitoring(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
     
