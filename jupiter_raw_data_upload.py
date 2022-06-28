@@ -208,9 +208,9 @@ def get_upload_result(dst_dir,input):
 
 def _check_upload_result(**kwargs):
     print(kwargs['input'])
-    return 'end_mon_success'
+    return ['end_monitoring_success']
 
-@task
+@task(task_id="end_monitoring_success")
 def end_monitoring_success():
     print(1)
 
@@ -238,7 +238,6 @@ with DAG(
 #     Check entities upload results and update monitoring files
     end_mon_detail = end_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
     upload_result = get_upload_result(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
-    end_mon_success = end_monitoring_success()
     branch_task = BranchPythonOperator(
     task_id='branching',
     python_callable=_check_upload_result,
