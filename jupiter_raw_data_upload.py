@@ -10,7 +10,7 @@ from airflow.providers.yandex.operators.yandexcloud_dataproc import  DataprocCre
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
-from airflow.operators.python import PythonOperator
+from airflow.operators.python import PythonOperator, BranchPythonOperator
 from airflow.utils.task_group import TaskGroup
 from airflow.hooks.base_hook import BaseHook
 import uuid
