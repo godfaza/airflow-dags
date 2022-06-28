@@ -69,14 +69,6 @@ def get_parameters(**kwargs):
     print(parameters)
     return parameters
 
-@task
-def generate_schema_query(parameters: dict):
-    query = mssql_scripts.generate_db_schema_query(
-        white_list=parameters['WhiteList'])
-    
-    return query
-
-
 with DAG(
     dag_id='vault_write_variable',
     schedule_interval=None,
@@ -87,8 +79,7 @@ with DAG(
 ) as dag:
 # Get dag parameters from vault    
     parameters = get_parameters()
-#     Generate schema extraction query
-    schema_query = generate_schema_query(parameters)
+
     
     
 
