@@ -186,10 +186,10 @@ def end_monitoring_detail(dst_dir,input):
 
    
 @task(trigger_rule=TriggerRule.ALL_DONE)
-def end_monitoring(dst_dir,input):
+def get_upload_result(dst_dir,input):
     monintoring_details = list(input)
     print(monintoring_details)
-    return any(d['Result'] == False for d in monintoring_details)
+    return not any(d['Result'] == False for d in monintoring_details)
      
     
 #     monitoring_file_path=f'{dst_dir}{MONITORING_FILE}'
@@ -230,5 +230,11 @@ with DAG(
     )
 #     Check entities upload results and update monitoring files
     end_mon_detail = end_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
-    end_monitoring(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
+    upload_result = get_upload_result(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
+    
+    branch_task = BranchPythonOperator(
+    task_id='branching',
+    input=upload_result,    
+    python_callable=lambda input=input: print(input),
+    )
     
