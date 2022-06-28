@@ -4,11 +4,13 @@ from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from datetime import datetime
+from airflow.configuration import ensure_secrets_loaded
 
 def print_var():
     my_var = Variable.get("var999")
     print(f'My variable is: {my_var}')
-    Variable.update("var999", "airflow_update")
+    print(ensure_secrets_loaded())
+#     Variable.update("var999", "airflow_update")
     
 
 with DAG('vault_secrets_test', start_date=datetime(2022, 1, 1), schedule_interval=None) as dag:
