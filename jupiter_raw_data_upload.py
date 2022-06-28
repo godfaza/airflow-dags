@@ -214,6 +214,10 @@ def _check_upload_result(**kwargs):
 def end_monitoring_success():
     print(1)
 
+@task(task_id="end_monitoring_failure")
+def end_monitoring_failure():
+    print(2)    
+
 with DAG(
     dag_id='jupiter_raw_data_upload',
     schedule_interval=None,
@@ -238,10 +242,11 @@ with DAG(
 #     Check entities upload results and update monitoring files
     end_mon_detail = end_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
     upload_result = get_upload_result(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
-    end_monitoring_success=end_monitoring_success()
+    
     branch_task = BranchPythonOperator(
     task_id='branching',
     python_callable=_check_upload_result,
     op_kwargs={'input': upload_result},    
     )
+    branch_task  >> [end_monitoring_success(),end_monitoring_failure()]
     
