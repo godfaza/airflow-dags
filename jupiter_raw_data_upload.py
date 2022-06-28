@@ -22,6 +22,7 @@ import cloud_scripts.mssql_scripts as mssql_scripts
 import json
 import pandas as pd
 import glob
+import os
 
 
 MSSQL_CONNECTION_NAME = 'odbc_default'
