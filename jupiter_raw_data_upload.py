@@ -248,5 +248,10 @@ with DAG(
     python_callable=_check_upload_result,
     op_kwargs={'input': upload_result},    
     )
-    branch_task  >> [end_monitoring_success(),end_monitoring_failure()]
+    
+    join = DummyOperator(
+        task_id='join',
+        trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS,
+    )
+    branch_task  >> [end_monitoring_success(),end_monitoring_failure()] >> join
     
