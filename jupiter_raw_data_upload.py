@@ -116,7 +116,7 @@ def generate_bcp_script(src_dir,src_file,upload_path,bcp_parameters,entity):
 def start_monitoring(prev_task,dst_dir,system_name,run_id=None):
     monitoring_file_path=f'{dst_dir}{MONITORING_FILE}.csv'
 
-    temp_file_path =f'/tmp/{MONITORING_FILE}.csv'
+    temp_file_path =f'/tmp/{MONITORING_FILE}'
     df = pd.DataFrame([{'PipelineRunId':urllib.parse.quote_plus(run_id),
                         'SystemName':system_name,
                         'StartDate':pendulum.now(),
@@ -128,6 +128,8 @@ def start_monitoring(prev_task,dst_dir,system_name,run_id=None):
     hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
     conn = hdfs_hook.get_conn()
     conn.upload(monitoring_file_path,temp_file_path)
+    
+    return True
 
 @task
 def start_monitoring_detail(dst_dir,upload_path,input,run_id=None):
