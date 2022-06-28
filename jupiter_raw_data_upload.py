@@ -187,18 +187,9 @@ def end_monitoring_detail(dst_dir,input):
    
 @task(trigger_rule=TriggerRule.ALL_DONE)
 def end_monitoring(dst_dir,input):
-    path = f'{dst_dir}{MONITORING_DETAIL_DIR_PREFIX}'
-    all_files = glob.glob(os.path.join(path , "/*.csv"))
-    li = []
-
-    for filename in all_files:
-     df = pd.read_csv(filename, index_col=None, header=0)
-     li.append(df)
-
-    combined_df = pd.concat(li, axis=0, ignore_index=True)
-    print(combined_df.to_markdown())
-#     monintoring_details = list(input)
-#     return any(d['Result'] == False for d in monintoring_details)
+    monintoring_details = list(input)
+    print(monintoring_details)
+    return any(d['Result'] == False for d in monintoring_details)
      
     
 #     monitoring_file_path=f'{dst_dir}{MONITORING_FILE}'
