@@ -153,7 +153,7 @@ def end_monitoring(dst_dir,input):
     
     df = pd.read_csv(temp_file_path, keep_default_na=False)
     df['Status'] = STATUS_COMPLETE if prev_task_result else STATUS_FAILURE
-    df['Duration'] = 1
+    df['Duration'] =  prev_tast_output["Duration"]
     
     df.to_csv(temp_file_path, index=False)
     conn.upload(monitoring_file_path,temp_file_path,overwrite=True)
