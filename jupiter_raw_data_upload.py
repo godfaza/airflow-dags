@@ -188,7 +188,6 @@ def end_monitoring_detail(dst_dir,input):
 def end_monitoring(dst_dir,input):
     path = f'{dst_dir}{MONITORING_DETAIL_DIR_PREFIX}'
     all_files = glob.glob(os.path.join(path , "/*.csv"))
-
     li = []
 
     for filename in all_files:
