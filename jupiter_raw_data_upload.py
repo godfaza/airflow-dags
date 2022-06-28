@@ -200,7 +200,7 @@ def end_monitoring_success(dst_dir,input):
     conn.upload(monitoring_file_path,temp_file_path,overwrite=True)
     
 @task(trigger_rule=TriggerRule.ONE_FAILED)
-def end_monitoring_failure(dst_dir,input):
+def end_monitoring(dst_dir,input):
     print(list(input))
     monitoring_file_path=f'{dst_dir}{MONITORING_FILE}'
     temp_file_path =f'/tmp/{MONITORING_FILE}'
@@ -240,6 +240,5 @@ with DAG(
     )
 #     Check entities upload results and update monitoring files
     end_mon_detail = end_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
-    end_monitoring_success(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
-    end_monitoring_failure(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
+    end_monitoring(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
     
