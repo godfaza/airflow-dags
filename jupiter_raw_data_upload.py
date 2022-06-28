@@ -185,7 +185,7 @@ def end_monitoring_detail(dst_dir,input):
    
 @task(trigger_rule=TriggerRule.ALL_DONE)
 def end_monitoring(dst_dir,input):
-    monintoring_details = list(input))
+    monintoring_details = list(input)
     return any(d['Result'] == False for d in monintoring_details)
      
     
