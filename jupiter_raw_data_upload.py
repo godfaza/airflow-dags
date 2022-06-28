@@ -200,6 +200,23 @@ def end_monitoring_success(dst_dir,input):
     df.to_csv(temp_file_path, index=False)
     conn.upload(monitoring_file_path,temp_file_path,overwrite=True)
     
+@task(trigger_rule=TriggerRule.ONE_FAILED)
+def end_monitoring_failure(dst_dir,input):
+    print(list(input))
+    monitoring_file_path=f'{dst_dir}{MONITORING_FILE}'
+    temp_file_path =f'/tmp/{MONITORING_FILE}'
+
+    hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
+    conn = hdfs_hook.get_conn()
+    conn.download(monitoring_file_path,temp_file_path)
+    
+    df = pd.read_csv(temp_file_path, keep_default_na=False)
+    df['Status'] = STATUS_FAILURE
+    df['EndDate'] = pendulum.now()
+    
+    df.to_csv(temp_file_path, index=False)
+    conn.upload(monitoring_file_path,temp_file_path,overwrite=True)    
+    
 
 with DAG(
     dag_id='jupiter_raw_data_upload',
@@ -224,5 +241,6 @@ with DAG(
     )
 #     Check entities upload results and update monitoring files
     end_mon_detail = end_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
-    end_monitoring(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
+    end_monitoring_success(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
+    end_monitoring_failure(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
     
