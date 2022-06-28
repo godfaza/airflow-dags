@@ -182,23 +182,7 @@ def end_monitoring_detail(dst_dir,input):
     
     return input
 
-@task(trigger_rule=TriggerRule.ALL_DONE)
-def end_monitoring_success(dst_dir,input):
-    print(list(input))
-    monitoring_file_path=f'{dst_dir}{MONITORING_FILE}'
-    temp_file_path =f'/tmp/{MONITORING_FILE}'
-
-    hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
-    conn = hdfs_hook.get_conn()
-    conn.download(monitoring_file_path,temp_file_path)
-    
-    df = pd.read_csv(temp_file_path, keep_default_na=False)
-    df['Status'] = STATUS_COMPLETE
-    df['EndDate'] = pendulum.now()
-    
-    df.to_csv(temp_file_path, index=False)
-    conn.upload(monitoring_file_path,temp_file_path,overwrite=True)
-    
+   
 @task(trigger_rule=TriggerRule.ALL_DONE)
 def end_monitoring(dst_dir,input):
     print(list(input))
