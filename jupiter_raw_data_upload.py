@@ -206,7 +206,8 @@ def get_upload_result(dst_dir,input):
 #     df.to_csv(temp_file_path, index=False)
 #     conn.upload(monitoring_file_path,temp_file_path,overwrite=True)    
 
-def _check_upload_result(input):
+def _check_upload_result(**kwargs):
+    print(kwargs['input'])
     return 'end_mon_success'
 
 @task
@@ -241,5 +242,6 @@ with DAG(
     branch_task = BranchPythonOperator(
     task_id='branching',
     python_callable=_check_upload_result,
+    op_kwargs={'input': upload_result},    
     )
     
