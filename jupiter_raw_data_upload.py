@@ -205,7 +205,13 @@ def get_upload_result(dst_dir,input):
     
 #     df.to_csv(temp_file_path, index=False)
 #     conn.upload(monitoring_file_path,temp_file_path,overwrite=True)    
-    
+
+def _check_upload_result(input):
+    return 'end_mon_success'
+
+@task
+def end_monitoring_success():
+    print(1)
 
 with DAG(
     dag_id='jupiter_raw_data_upload',
@@ -231,10 +237,9 @@ with DAG(
 #     Check entities upload results and update monitoring files
     end_mon_detail = end_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
     upload_result = get_upload_result(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
-    
+    end_mon_success = end_monitoring_success()
     branch_task = BranchPythonOperator(
     task_id='branching',
-    input=upload_result,    
-    python_callable=lambda input=input: print(input),
+    python_callable=_check_upload_result(upload_result),
     )
     
