@@ -113,7 +113,7 @@ def generate_bcp_script(src_dir,src_file,upload_path,bcp_parameters,entity):
     return  script
 
 @task
-def start_monitoring(dst_dir,system_name,run_id=None):
+def start_monitoring(prev_task,dst_dir,system_name,run_id=None):
     monitoring_file_path=f'{dst_dir}{MONITORING_FILE}.csv'
 
     temp_file_path =f'/tmp/{MONITORING_FILE}.csv'
