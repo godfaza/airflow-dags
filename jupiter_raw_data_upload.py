@@ -182,7 +182,7 @@ def end_monitoring_detail(dst_dir,input):
     
     return input
 
-@task(trigger_rule=TriggerRule.ALL_SUCCESS)
+@task(trigger_rule=TriggerRule.ALL_DONE)
 def end_monitoring_success(dst_dir,input):
     print(list(input))
     monitoring_file_path=f'{dst_dir}{MONITORING_FILE}'
