@@ -8,7 +8,7 @@ from datetime import datetime
 def print_var():
     my_var = Variable.get("var999")
     print(f'My variable is: {my_var}')
-    Variable.set("var999", "airflow_update")
+    Variable.update("var999", "airflow_update")
     
 
 with DAG('vault_secrets_test', start_date=datetime(2022, 1, 1), schedule_interval=None) as dag:
