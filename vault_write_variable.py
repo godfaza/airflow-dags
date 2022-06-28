@@ -89,4 +89,6 @@ with DAG(
     parameters = get_parameters()
 #     Generate schema extraction query
     schema_query = generate_schema_query(parameters)
+    
+    
 
