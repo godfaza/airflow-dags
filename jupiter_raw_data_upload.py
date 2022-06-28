@@ -199,7 +199,7 @@ def end_monitoring_success(dst_dir,input):
     df.to_csv(temp_file_path, index=False)
     conn.upload(monitoring_file_path,temp_file_path,overwrite=True)
     
-@task(trigger_rule=TriggerRule.ONE_FAILED)
+@task(trigger_rule=TriggerRule.ALL_DONE)
 def end_monitoring(dst_dir,input):
     print(list(input))
     monitoring_file_path=f'{dst_dir}{MONITORING_FILE}'
