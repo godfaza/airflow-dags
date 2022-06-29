@@ -14,7 +14,7 @@ def print_var():
     
     vault_hook = VaultHook()
     conn = vault_hook.get_conn()
-    conn.secrets.kv.v1.create_or_update_secret(path="variables/var999",secret={"value":"AIRFLOW_UPD1"})
+    conn.secrets.kv.v1.create_or_update_secret(path="variables/var999",secret={"value":"AIRFLOW_UPD2"})
 #     for secrets_backend in ensure_secrets_loaded():
 #       if isinstance(secrets_backend, VaultBackend):
 #         print(secrets_backend.vault_client.mount_point)
