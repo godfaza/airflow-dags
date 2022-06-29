@@ -12,9 +12,16 @@ def print_var():
     my_var = Variable.get("var999")
     print(f'My variable is: {my_var}')
     
-    vault_hook = VaultHook()
-    conn = vault_hook.get_conn()
-    conn.secrets.kv.v1.create_or_update_secret(path="variables/var999",secret={"value":"AIRFLOW_UPD2"})
+    raw_path = Variable.get("RawPath")
+    white_list = Variable.get("WhiteList")
+    upload_path = f'{raw_path}/{execution_date}/'
+    system_name = Variable.get("SystemName")
+    last_upload_date = Variable.get("LastUploadDate")
+    last_upload_date2 = Variable.get("LastUploadDate")
+    
+#     vault_hook = VaultHook()
+#     conn = vault_hook.get_conn()
+#     conn.secrets.kv.v1.create_or_update_secret(path="variables/var999",secret={"value":"AIRFLOW_UPD2"})
 #     for secrets_backend in ensure_secrets_loaded():
 #       if isinstance(secrets_backend, VaultBackend):
 #         print(secrets_backend.vault_client.mount_point)
