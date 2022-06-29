@@ -13,7 +13,7 @@ def print_var():
     my_var = Variable.get("var999")
     print(f'My variable is: {my_var}')
     
-    for i in range(2):
+    for i in range(10):
         print(i)
         raw_path = Variable.get("RawPath")
     
