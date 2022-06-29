@@ -213,7 +213,7 @@ def _end_monitoring(dst_dir,status):
     conn.upload(monitoring_file_path,temp_file_path,overwrite=True)    
 
 def _check_upload_result(**kwargs):
-    return ['end_monitoring_success','update_last_upload_date'] if kwargs['input'] else ['end_monitoring_failure']
+    return ['end_monitoring_success'] if kwargs['input'] else ['end_monitoring_failure']
 
 @task(task_id="end_monitoring_success")
 def end_monitoring_success(dst_dir):
