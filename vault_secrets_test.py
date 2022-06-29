@@ -13,8 +13,9 @@ def print_var():
     my_var = Variable.get("var999")
     print(f'My variable is: {my_var}')
     
-    for i in range(10):
-      raw_path = Variable.get("RawPath")
+    for i in range(2):
+        print(i)
+        raw_path = Variable.get("RawPath")
     
 #     vault_hook = VaultHook()
 #     conn = vault_hook.get_conn()
