@@ -2,9 +2,12 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash import BashOperator
 from datetime import datetime
+from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
 
 def get_secrets(**kwargs):
+     last_upload_date = Variable.get("LastUploadDate")
+     print(last_upload_date)
      conn = BaseHook.get_connection(kwargs['my_conn_id'])
      print(f"Password: {conn.password}, Login: {conn.login}, URI: {conn.get_uri()}, Host: {conn.host}, Schema: {conn.schema}")
      return '-S {} -d {} -U {} -P {}'.format(conn.host,conn.schema,conn.login,conn.password)
