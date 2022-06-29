@@ -12,7 +12,7 @@ def print_var():
     print(f'My variable is: {my_var}')
     for secrets_backend in ensure_secrets_loaded():
       if isinstance(secrets_backend, VaultBackend):
-        print(secrets_backend.vault_client)
+        print(secrets_backend.vault_client.mount_point)
         secrets_backend.vault_client.client.secrets.kv.v1.create_or_update_secret(path="var999",secret={"Value":"AIRFLOW_UPD"})
 #     Variable.update("var999", "airflow_update")
     
