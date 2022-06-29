@@ -28,7 +28,7 @@ import os
 
 MSSQL_CONNECTION_NAME = 'odbc_default'
 HDFS_CONNECTION_NAME = 'webhdfs_default'
-VAULT_CONNECTION_NAME = 'vault_default'
+# VAULT_CONNECTION_NAME = 'vault_default'
 AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 BCP_SEPARATOR = '0x01'
@@ -61,7 +61,7 @@ def get_parameters(**kwargs):
     
     print(last_upload_date)
 
-    db_conn = BaseHook.get_connection(HDFS_CONNECTION_NAME)
+    db_conn = BaseHook.get_connection(MSSQL_CONNECTION_NAME)
     bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
     
     parameters = {"RawPath": raw_path,
