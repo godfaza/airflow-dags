@@ -58,7 +58,6 @@ def get_parameters(**kwargs):
     system_name = Variable.get("SystemName")
     last_upload_date = Variable.get("LastUploadDate")
     
-    db_conn = BaseHook.get_connection(MSSQL_CONNECTION_NAME)
     bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
     
     parameters = {"RawPath": raw_path,
