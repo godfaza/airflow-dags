@@ -29,6 +29,7 @@ import os
 
 MSSQL_CONNECTION_NAME = 'odbc_default'
 HDFS_CONNECTION_NAME = 'webhdfs_default'
+VAULT_CONNECTION_NAME = 'vault_default'
 AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 BCP_SEPARATOR = '0x01'
@@ -225,7 +226,7 @@ def end_monitoring_failure(dst_dir):
     
 @task(task_id="update_last_upload_date")
 def update_last_upload_date(last_upload_date):
-    vault_hook = VaultHook()
+    vault_hook = VaultHook(VAULT_CONNECTION_NAME)
     conn = vault_hook.get_conn()
     conn.secrets.kv.v1.create_or_update_secret(path="variables/LastUploadDate",secret={"value":last_upload_date})
     
