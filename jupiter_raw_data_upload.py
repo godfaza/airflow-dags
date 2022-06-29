@@ -206,7 +206,7 @@ def _end_monitoring(dst_dir,status):
     conn.download(monitoring_file_path,temp_file_path)
     
     df = pd.read_csv(temp_file_path, keep_default_na=False)
-    df['Status'] = STATUS_SUCCESS if status else STATUS_FAILURE 
+    df['Status'] = STATUS_COMPLETE if status else STATUS_FAILURE 
     df['EndDate'] = pendulum.now()
     
     df.to_csv(temp_file_path, index=False)
