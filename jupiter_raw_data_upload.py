@@ -13,7 +13,6 @@ from airflow.operators.dummy import DummyOperator
 from airflow.operators.python import PythonOperator, BranchPythonOperator
 from airflow.utils.task_group import TaskGroup
 from airflow.hooks.base_hook import BaseHook
-# from airflow.providers.hashicorp.hooks.vault import VaultHook
 import uuid
 from io import StringIO
 import urllib.parse
@@ -28,7 +27,6 @@ import os
 
 MSSQL_CONNECTION_NAME = 'odbc_default'
 HDFS_CONNECTION_NAME = 'webhdfs_default'
-# VAULT_CONNECTION_NAME = 'vault_default'
 AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 BCP_SEPARATOR = '0x01'
@@ -51,16 +49,12 @@ def get_parameters(**kwargs):
     ds = kwargs['ds']
     execution_date = kwargs['execution_date'].strftime("%Y/%m/%d")
     run_id = urllib.parse.quote_plus(kwargs['run_id'])
-    logical_date = kwargs['logical_date'].strftime("%Y-%m-%d %H:%M:%S")
     
     raw_path = Variable.get("RawPath")
     white_list = Variable.get("WhiteList")
     upload_path = f'{raw_path}/{execution_date}/'
     system_name = Variable.get("SystemName")
-    last_upload_date = Variable.get("LastUploadDate")
     
-    print(last_upload_date)
-
     db_conn = BaseHook.get_connection(MSSQL_CONNECTION_NAME)
     bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
     
@@ -71,8 +65,6 @@ def get_parameters(**kwargs):
                   "UploadPath": upload_path,
                   "RunId":run_id,
                   "SystemName":system_name,
-                  "CurrentUploadDate":logical_date,
-                  "LastUploadDate":last_upload_date
                   }
     print(parameters)
     return parameters
