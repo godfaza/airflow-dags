@@ -7,6 +7,7 @@ from datetime import datetime
 from airflow.configuration import ensure_secrets_loaded
 from airflow.providers.hashicorp.secrets.vault import VaultBackend
 from airflow.providers.hashicorp.hooks.vault import VaultHook
+import time
 
 def print_var():
     my_var = Variable.get("var999")
@@ -15,6 +16,7 @@ def print_var():
     raw_path = Variable.get("RawPath")
     white_list = Variable.get("WhiteList")
     system_name = Variable.get("SystemName")
+    time.sleep(1)
     system_name2 = Variable.get("SystemName")
     system_name3 = Variable.get("SystemName")
     
