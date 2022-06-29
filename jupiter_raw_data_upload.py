@@ -264,5 +264,5 @@ with DAG(
         task_id='join',
         trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS,
     )
-    branch_task  >> [end_monitoring_success(dst_dir=parameters["MaintenancePath"]),update_last_upload_date(last_upload_date=parameters["CurrentUploadDate"]),end_monitoring_failure(dst_dir=parameters["MaintenancePath"])] >> join
+    branch_task  >> [end_monitoring_success(dst_dir=parameters["MaintenancePath"]) >> update_last_upload_date(last_upload_date=parameters["CurrentUploadDate"]),end_monitoring_failure(dst_dir=parameters["MaintenancePath"])] >> join
     
