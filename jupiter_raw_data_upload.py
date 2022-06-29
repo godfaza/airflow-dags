@@ -13,6 +13,8 @@ from airflow.operators.dummy import DummyOperator
 from airflow.operators.python import PythonOperator, BranchPythonOperator
 from airflow.utils.task_group import TaskGroup
 from airflow.hooks.base_hook import BaseHook
+from airflow.providers.hashicorp.hooks.vault import VaultHook
+
 import uuid
 from io import StringIO
 import urllib.parse
@@ -211,7 +213,7 @@ def _end_monitoring(dst_dir,status):
     conn.upload(monitoring_file_path,temp_file_path,overwrite=True)    
 
 def _check_upload_result(**kwargs):
-    return ['end_monitoring_success'] if kwargs['input'] else ['end_monitoring_failure']
+    return ['end_monitoring_success','update_last_upload_date'] if kwargs['input'] else ['end_monitoring_failure']
 
 @task(task_id="end_monitoring_success")
 def end_monitoring_success(dst_dir):
@@ -219,8 +221,14 @@ def end_monitoring_success(dst_dir):
 
 @task(task_id="end_monitoring_failure")
 def end_monitoring_failure(dst_dir):
-    _end_monitoring(dst_dir,False)  
-
+    _end_monitoring(dst_dir,False)
+    
+@task(task_id="update_last_upload_date")
+def update_last_upload_date(last_upload_date):
+    vault_hook = VaultHook()
+    conn = vault_hook.get_conn()
+    conn.secrets.kv.v1.create_or_update_secret(path="variables/LastUploadDate",secret={"value":last_upload_date})
+    
 with DAG(
     dag_id='jupiter_raw_data_upload',
     schedule_interval=None,
@@ -256,5 +264,5 @@ with DAG(
         task_id='join',
         trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS,
     )
-    branch_task  >> [end_monitoring_success(dst_dir=parameters["MaintenancePath"]),end_monitoring_failure(dst_dir=parameters["MaintenancePath"])] >> join
+    branch_task  >> [end_monitoring_success(dst_dir=parameters["MaintenancePath"]),update_last_upload_date(last_upload_date=parameters["CurrentUploadDate"]),end_monitoring_failure(dst_dir=parameters["MaintenancePath"])] >> join
     
