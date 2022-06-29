@@ -49,7 +49,7 @@ def get_parameters(**kwargs):
     ds = kwargs['ds']
     execution_date = kwargs['execution_date'].strftime("%Y/%m/%d")
     run_id = urllib.parse.quote_plus(kwargs['run_id'])
-    upload_date = kwargs['logical_date'].strftime("%Y-%m-%d %H:%M:%S")
+#     upload_date = kwargs['logical_date'].strftime("%Y-%m-%d %H:%M:%S")
     
     raw_path = Variable.get("RawPath")
     white_list = Variable.get("WhiteList")
@@ -68,7 +68,7 @@ def get_parameters(**kwargs):
                   "RunId":run_id,
                   "SystemName":system_name,
                   "LastUploadDate":last_upload_date,
-                  "CurrentUploadDate":upload_date,
+                  "CurrentUploadDate":None,
                   }
     print(parameters)
     return parameters
