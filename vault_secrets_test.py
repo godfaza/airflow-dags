@@ -13,7 +13,7 @@ def print_var():
     for secrets_backend in ensure_secrets_loaded():
       if isinstance(secrets_backend, VaultBackend):
         print(secrets_backend.vault_client.mount_point)
-        secrets_backend.vault_client.client.secrets.kv.v1.create_or_update_secret(path="var999",secret={"Value":"AIRFLOW_UPD"})
+        secrets_backend.vault_client.client.secrets.kv.v1.create_or_update_secret(path="variables/var999",secret={"value":"AIRFLOW_UPD"})
 #     Variable.update("var999", "airflow_update")
     
 
