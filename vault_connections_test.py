@@ -14,7 +14,7 @@ with DAG('vault_connections_test', start_date=datetime(2020, 1, 1), schedule_int
      test_task = PythonOperator(
          task_id='test-task',
          python_callable=get_secrets,
-         op_kwargs={'my_conn_id': 'jupiter_dev_mssql'},
+         op_kwargs={'my_conn_id': 'odbc_default'},
      )
      download_schema = BashOperator(
         task_id='exec_query',
