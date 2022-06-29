@@ -49,11 +49,13 @@ def get_parameters(**kwargs):
     ds = kwargs['ds']
     execution_date = kwargs['execution_date'].strftime("%Y/%m/%d")
     run_id = urllib.parse.quote_plus(kwargs['run_id'])
+    upload_date = kwargs['logical_date'].strftime("%Y-%m-%d %H:%M:%S")
     
     raw_path = Variable.get("RawPath")
     white_list = Variable.get("WhiteList")
     upload_path = f'{raw_path}/{execution_date}/'
     system_name = Variable.get("SystemName")
+    last_upload_date = Variable.get("LastUploadDate")
     
     db_conn = BaseHook.get_connection(MSSQL_CONNECTION_NAME)
     bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
@@ -65,6 +67,8 @@ def get_parameters(**kwargs):
                   "UploadPath": upload_path,
                   "RunId":run_id,
                   "SystemName":system_name,
+                  "LastUploadDate":last_upload_date,
+                  "CurrentUploadDate":upload_date,
                   }
     print(parameters)
     return parameters
