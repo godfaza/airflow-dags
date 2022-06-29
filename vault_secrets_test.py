@@ -12,17 +12,9 @@ import time
 def print_var():
     my_var = Variable.get("var999")
     print(f'My variable is: {my_var}')
-    time.sleep(1)
     
-    raw_path = Variable.get("RawPath")
-    time.sleep(1)
-    white_list = Variable.get("WhiteList")
-    time.sleep(1)
-    system_name = Variable.get("SystemName")
-    time.sleep(1)
-    system_name2 = Variable.get("SystemName")
-    time.sleep(1)
-    system_name3 = Variable.get("SystemName")
+    for i in range(10):
+      raw_path = Variable.get("RawPath")
     
 #     vault_hook = VaultHook()
 #     conn = vault_hook.get_conn()
