@@ -56,11 +56,10 @@ def get_parameters(**kwargs):
     upload_path = f'{raw_path}/{execution_date}/'
     system_name = Variable.get("SystemName")
     last_upload_date = Variable.get("LastUploadDate")
-    last_upload_date2 = Variable.get("LastUploadDate")
     
-#     db_conn = BaseHook.get_connection(MSSQL_CONNECTION_NAME)
-#     bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
-    bcp_parameters = ''
+    db_conn = BaseHook.get_connection(MSSQL_CONNECTION_NAME)
+    bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
+
     parameters = {"RawPath": raw_path,
                   "WhiteList": white_list,
                   "MaintenancePath":"{}{}{}_{}_".format(raw_path,"/#MAINTENANCE/",ds,run_id),
@@ -68,8 +67,8 @@ def get_parameters(**kwargs):
                   "UploadPath": upload_path,
                   "RunId":run_id,
                   "SystemName":system_name,
-                  "LastUploadDate":None,
-                  "CurrentUploadDate":None,
+                  "LastUploadDate":last_upload_date,
+                  "CurrentUploadDate":upload_date,
                   }
     print(parameters)
     return parameters
@@ -96,7 +95,7 @@ def copy_data_db_to_hdfs(query,dst_dir,dst_file):
     return True
 
 @task    
-def generate_upload_script(prev_task,src_dir,src_file,upload_path,bcp_parameters):
+def generate_upload_script(prev_task,src_dir,src_file,upload_path,bcp_parameters,current_upload_date,last_upload_date):
     src_path = f"{src_dir}{src_file}"
     tmp_path = f"/tmp/{src_file}"
     print(src_path)
@@ -105,7 +104,7 @@ def generate_upload_script(prev_task,src_dir,src_file,upload_path,bcp_parameters
     conn = hdfs_hook.get_conn()
     conn.download(src_path, tmp_path)
     
-    entities = mssql_scripts.generate_table_select_query('2022-06-20','2022-06-20',tmp_path)
+    entities = mssql_scripts.generate_table_select_query(current_upload_date,last_upload_date,tmp_path)
   
     return entities
     
@@ -238,7 +237,7 @@ with DAG(
     extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE)
     start_mon=start_monitoring(extract_schema,dst_dir=parameters["MaintenancePath"],system_name=parameters["SystemName"])
 #    Create entities list and start monitoring for them
-    start_mon_detail = start_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_script(start_mon,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE,parameters["UploadPath"],parameters["BcpParameters"]))
+    start_mon_detail = start_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_script(start_mon,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE,parameters["UploadPath"],parameters["BcpParameters"],parameters["CurrentUploadDate"],parameters["LastUploadDate"]))
 # Upload entities from sql to hdfs in parallel
     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
        bash_command= generate_bcp_script.partial(src_dir=parameters["MaintenancePath"],src_file=EXTRACT_ENTITIES_AUTO_FILE,upload_path=parameters["UploadPath"],bcp_parameters=parameters["BcpParameters"]).expand(entity=start_mon_detail),
