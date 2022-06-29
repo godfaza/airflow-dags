@@ -16,7 +16,7 @@ def print_var():
     raw_path = Variable.get("RawPath")
     white_list = Variable.get("WhiteList")
     system_name = Variable.get("SystemName")
-    time.sleep(1)
+    time.sleep(5)
     system_name2 = Variable.get("SystemName")
     system_name3 = Variable.get("SystemName")
     
