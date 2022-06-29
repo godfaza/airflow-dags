@@ -266,4 +266,4 @@ with DAG(
     )
     
     branch_task  >> end_monitoring_success(dst_dir=parameters["MaintenancePath"]) >> update_last_upload_date(last_upload_date=parameters["CurrentUploadDate"]) >> join
-    branch_task >> end_monitoring_failure(dst_dir=parameters["MaintenancePath"])] >> join
+    branch_task >> end_monitoring_failure(dst_dir=parameters["MaintenancePath"]) >> join
