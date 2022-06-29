@@ -15,8 +15,8 @@ def print_var():
     raw_path = Variable.get("RawPath")
     white_list = Variable.get("WhiteList")
     system_name = Variable.get("SystemName")
-    last_upload_date = Variable.get("LastUploadDate")
-    last_upload_date2 = Variable.get("LastUploadDate")
+    system_name2 = Variable.get("SystemName")
+    system_name3 = Variable.get("SystemName")
     
 #     vault_hook = VaultHook()
 #     conn = vault_hook.get_conn()
