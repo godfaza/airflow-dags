@@ -13,7 +13,7 @@ from airflow.operators.dummy import DummyOperator
 from airflow.operators.python import PythonOperator, BranchPythonOperator
 from airflow.utils.task_group import TaskGroup
 from airflow.hooks.base_hook import BaseHook
-from airflow.providers.hashicorp.hooks.vault import VaultHook
+# from airflow.providers.hashicorp.hooks.vault import VaultHook
 import uuid
 from io import StringIO
 import urllib.parse
