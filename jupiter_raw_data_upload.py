@@ -57,7 +57,8 @@ def get_parameters(**kwargs):
     upload_date = kwargs['logical_date'].strftime("%Y-%m-%d %H:%M:%S")
 
     raw_path = Variable.get("RawPath")
-    white_list = Variable.get("WhiteList")
+    white_list = Variable.get("WhiteList",default_var=None)
+    black_list = Variable.get("BlackList",default_var=None)
     upload_path = f'{raw_path}/{execution_date}/'
     system_name = Variable.get("SystemName")
     last_upload_date = Variable.get("LastUploadDate")
@@ -67,6 +68,7 @@ def get_parameters(**kwargs):
 
     parameters = {"RawPath": raw_path,
                   "WhiteList": white_list,
+                  "BlackList": black_list,
                   "MaintenancePathPrefix":"{}{}{}_{}_".format(raw_path,"/#MAINTENANCE/",ds,run_id),
                   "BcpParameters": bcp_parameters,
                   "UploadPath": upload_path,
@@ -82,7 +84,7 @@ def get_parameters(**kwargs):
 @task
 def generate_schema_query(parameters: dict):
     query = mssql_scripts.generate_db_schema_query(
-        white_list=parameters['WhiteList'])
+        white_list=parameters['WhiteList'],black_list=parameters['BlackList'])
     
     return query
 
