@@ -42,6 +42,8 @@ STATUS_FAILURE='FAILURE'
 STATUS_COMPLETE='COMPLETE'
 STATUS_PROCESS='PROCESS'
 
+DAYS_TO_KEEP_OLD_FILES = 2
+
 def separator_convert_hex_to_string(sep):
     sep_map = {'0x01':'\x01'}
     return sep_map.get(sep, sep)
@@ -65,13 +67,14 @@ def get_parameters(**kwargs):
 
     parameters = {"RawPath": raw_path,
                   "WhiteList": white_list,
-                  "MaintenancePath":"{}{}{}_{}_".format(raw_path,"/#MAINTENANCE/",ds,run_id),
+                  "MaintenancePathPrefix":"{}{}{}_{}_".format(raw_path,"/#MAINTENANCE/",ds,run_id),
                   "BcpParameters": bcp_parameters,
                   "UploadPath": upload_path,
                   "RunId":run_id,
                   "SystemName":system_name,
                   "LastUploadDate":last_upload_date,
                   "CurrentUploadDate":upload_date,
+                  "MaintenancePath":"{}{}".format(raw_path,"/#MAINTENANCE/"),
                   }
     print(parameters)
     return parameters
@@ -230,6 +233,7 @@ def update_last_upload_date(last_upload_date):
     conn = vault_hook.get_conn()
     conn.secrets.kv.v1.create_or_update_secret(path="variables/LastUploadDate",secret={"value":last_upload_date})
     
+    
 with DAG(
     dag_id='jupiter_raw_data_upload',
     schedule_interval=None,
@@ -243,17 +247,17 @@ with DAG(
 #     Generate schema extraction query
     schema_query = generate_schema_query(parameters)
 #     Extract db schema and save result to hdfs
-    extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE)
-    start_mon=start_monitoring(extract_schema,dst_dir=parameters["MaintenancePath"],system_name=parameters["SystemName"])
+    extract_schema = copy_data_db_to_hdfs(schema_query,parameters["MaintenancePathPrefix"],EXTRACT_ENTITIES_AUTO_FILE)
+    start_mon=start_monitoring(extract_schema,dst_dir=parameters["MaintenancePathPrefix"],system_name=parameters["SystemName"])
 #    Create entities list and start monitoring for them
-    start_mon_detail = start_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_script(start_mon,parameters["MaintenancePath"],EXTRACT_ENTITIES_AUTO_FILE,parameters["UploadPath"],parameters["BcpParameters"],parameters["CurrentUploadDate"],parameters["LastUploadDate"]))
+    start_mon_detail = start_monitoring_detail.partial(dst_dir=parameters["MaintenancePathPrefix"],upload_path=parameters["UploadPath"]).expand(input = generate_upload_script(start_mon,parameters["MaintenancePathPrefix"],EXTRACT_ENTITIES_AUTO_FILE,parameters["UploadPath"],parameters["BcpParameters"],parameters["CurrentUploadDate"],parameters["LastUploadDate"]))
 # Upload entities from sql to hdfs in parallel
     upload_tables=BashOperator.partial(task_id="upload_tables", do_xcom_push=True).expand(
-       bash_command= generate_bcp_script.partial(src_dir=parameters["MaintenancePath"],src_file=EXTRACT_ENTITIES_AUTO_FILE,upload_path=parameters["UploadPath"],bcp_parameters=parameters["BcpParameters"]).expand(entity=start_mon_detail),
+       bash_command= generate_bcp_script.partial(src_dir=parameters["MaintenancePathPrefix"],src_file=EXTRACT_ENTITIES_AUTO_FILE,upload_path=parameters["UploadPath"],bcp_parameters=parameters["BcpParameters"]).expand(entity=start_mon_detail),
     )
 #     Check entities upload results and update monitoring files
-    end_mon_detail = end_monitoring_detail.partial(dst_dir=parameters["MaintenancePath"]).expand(input=XComArg(upload_tables))
-    upload_result = get_upload_result(dst_dir=parameters["MaintenancePath"],input=end_mon_detail)
+    end_mon_detail = end_monitoring_detail.partial(dst_dir=parameters["MaintenancePathPrefix"]).expand(input=XComArg(upload_tables))
+    upload_result = get_upload_result(dst_dir=parameters["MaintenancePathPrefix"],input=end_mon_detail)
     
     branch_task = BranchPythonOperator(
     task_id='branching',
@@ -261,10 +265,16 @@ with DAG(
     op_kwargs={'input': upload_result},    
     )
     
-    join = DummyOperator(
-        task_id='join',
-        trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS,
-    )
+#     join = DummyOperator(
+#         task_id='join',
+#         trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS,
+#     )
     
-    branch_task  >> end_monitoring_success(dst_dir=parameters["MaintenancePath"]) >> update_last_upload_date(last_upload_date=parameters["CurrentUploadDate"]) >> join
-    branch_task >> end_monitoring_failure(dst_dir=parameters["MaintenancePath"]) >> join
+    cleanup = BashOperator(
+        task_id='cleanup',
+        trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS,
+        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/hdfs_delete_old_files.sh && ~/hdfs_delete_old_files.sh {{parameters["MaintenancePath"]}} 3 ',
+            )
+    
+    branch_task  >> end_monitoring_success(dst_dir=parameters["MaintenancePathPrefix"]) >> update_last_upload_date(last_upload_date=parameters["CurrentUploadDate"]) >> cleanup
+    branch_task >> end_monitoring_failure(dst_dir=parameters["MaintenancePathPrefix"]) >> cleanup
