@@ -52,6 +52,7 @@ def separator_convert_hex_to_string(sep):
 def get_parameters(**kwargs):
     ti = kwargs['ti']
     ds = kwargs['ds']
+    dag_run = kwargs['dag_run']
     execution_date = kwargs['execution_date'].strftime("%Y/%m/%d")
     parent_run_id = dag_run.conf.get('parent_run_id')
     run_id = parent_run_id if parent_run_id else urllib.parse.quote_plus(kwargs['run_id'])
