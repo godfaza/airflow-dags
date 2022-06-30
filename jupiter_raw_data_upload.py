@@ -265,11 +265,7 @@ with DAG(
     op_kwargs={'input': upload_result},    
     )
     
-#     join = DummyOperator(
-#         task_id='join',
-#         trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS,
-#     )
-    
+   
     cleanup = BashOperator(
         task_id='cleanup',
         trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS,
