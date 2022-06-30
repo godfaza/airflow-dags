@@ -16,7 +16,7 @@ with DAG(
         task_id="trigger_raw_qc",
         trigger_dag_id="jupiter_raw_qc2",  
         conf={"message": "Starting child dag"},
-        wait_for_completion = True,
+        wait_for_completion = False,
     )
     
     trigger_dag_qc
