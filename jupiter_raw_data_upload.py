@@ -273,7 +273,7 @@ with DAG(
     cleanup = BashOperator(
         task_id='cleanup',
         trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS,
-        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/hdfs_delete_old_files.sh && ~/hdfs_delete_old_files.sh {{ti.xcom_pull(task_ids="get_parameters",key="MaintenancePath")}} 3 ',
+        bash_command='cp -r /tmp/data/src/. ~/ && chmod +x ~/hdfs_delete_old_files.sh && ~/hdfs_delete_old_files.sh {{ti.xcom_pull(task_ids="get_parameters",key="MaintenancePath")}} {{DAYS_TO_KEEP_OLD_FILES}} ',
             )
     
     branch_task  >> end_monitoring_success(dst_dir=parameters["MaintenancePathPrefix"]) >> update_last_upload_date(last_upload_date=parameters["CurrentUploadDate"]) >> cleanup
