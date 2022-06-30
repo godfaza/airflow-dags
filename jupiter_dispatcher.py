@@ -15,7 +15,7 @@ with DAG(
     trigger_dag_qc = TriggerDagRunOperator(
         task_id="trigger_raw_qc",
         trigger_dag_id="jupiter_raw_qc2",  
-        conf={"message": "Starting child dag"},
+        conf={"parent_run_id": {{run_id}}},
         wait_for_completion = True,
     )
     
