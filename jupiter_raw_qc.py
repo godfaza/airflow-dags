@@ -37,6 +37,7 @@ BCP_SEPARATOR = '0x01'
 MONITORING_DETAIL_DIR_PREFIX = 'MONITORING_DETAIL.CSV'
 EXTRACT_ENTITIES_AUTO_FILE = 'EXTRACT_ENTITIES_AUTO.csv'
 MONITORING_FILE = 'MONITORING.csv'
+PARAMETERS_FILE = 'PARAMETERS.csv'
 
 STATUS_FAILURE='FAILURE'
 STATUS_COMPLETE='COMPLETE'
@@ -83,6 +84,18 @@ def get_parameters(**kwargs):
     print(parameters)
     return parameters
 
+@task
+def save_parameters(parameters:dict):
+    parameters_file_path=f'{parameters["MaintenancePathPrefix"]}{PARAMETERS_FILE}'
+
+    temp_file_path =f'/tmp/{PARAMETERS_FILE}'
+    df = pd.DataFrame(dict)
+    df.to_csv(temp_file_path, index=False)
+    
+    hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
+    conn = hdfs_hook.get_conn()
+    conn.upload(parameters_file_path,temp_file_path,overwrite=True)
+
 
 with DAG(
     dag_id='jupiter_raw_qc',
@@ -94,3 +107,4 @@ with DAG(
 ) as dag:
 # Get dag parameters from vault    
     parameters = get_parameters()
+    save_parameters(parameters)
