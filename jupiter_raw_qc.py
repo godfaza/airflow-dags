@@ -53,7 +53,8 @@ def get_parameters(**kwargs):
     ti = kwargs['ti']
     ds = kwargs['ds']
     execution_date = kwargs['execution_date'].strftime("%Y/%m/%d")
-    run_id = urllib.parse.quote_plus(kwargs['run_id'])
+    parent_run_id = dag_run.conf.get('parent_run_id')
+    run_id = parent_run_id if parent_run_id else urllib.parse.quote_plus(kwargs['run_id'])
     upload_date = kwargs['logical_date'].strftime("%Y-%m-%d %H:%M:%S")
 
     raw_path = Variable.get("RawPath")
