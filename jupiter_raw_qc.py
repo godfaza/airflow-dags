@@ -1,0 +1,94 @@
+import datetime
+import pendulum
+
+from airflow import DAG, XComArg
+from airflow.decorators import dag, task
+from airflow.utils.trigger_rule import TriggerRule
+from airflow.providers.odbc.hooks.odbc import OdbcHook
+from airflow.providers.apache.hdfs.hooks.webhdfs import WebHDFSHook
+from airflow.providers.yandex.operators.yandexcloud_dataproc import  DataprocCreatePysparkJobOperator
+from airflow.models import Variable
+from airflow.operators.bash import BashOperator
+from airflow.operators.dummy import DummyOperator
+from airflow.operators.python import PythonOperator, BranchPythonOperator
+from airflow.utils.task_group import TaskGroup
+from airflow.hooks.base_hook import BaseHook
+from airflow.providers.hashicorp.hooks.vault import VaultHook
+
+import uuid
+from io import StringIO
+import urllib.parse
+import subprocess
+
+import cloud_scripts.mssql_scripts as mssql_scripts
+import json
+import pandas as pd
+import glob
+import os
+
+
+MSSQL_CONNECTION_NAME = 'odbc_default'
+HDFS_CONNECTION_NAME = 'webhdfs_default'
+VAULT_CONNECTION_NAME = 'vault_default'
+AVAILABILITY_ZONE_ID = 'ru-central1-b'
+S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
+BCP_SEPARATOR = '0x01'
+
+MONITORING_DETAIL_DIR_PREFIX = 'MONITORING_DETAIL.CSV'
+EXTRACT_ENTITIES_AUTO_FILE = 'EXTRACT_ENTITIES_AUTO.csv'
+MONITORING_FILE = 'MONITORING.csv'
+
+STATUS_FAILURE='FAILURE'
+STATUS_COMPLETE='COMPLETE'
+STATUS_PROCESS='PROCESS'
+
+DAYS_TO_KEEP_OLD_FILES = 2
+
+def separator_convert_hex_to_string(sep):
+    sep_map = {'0x01':'\x01'}
+    return sep_map.get(sep, sep)
+
+@task(multiple_outputs=True)
+def get_parameters(**kwargs):
+    ti = kwargs['ti']
+    ds = kwargs['ds']
+    execution_date = kwargs['execution_date'].strftime("%Y/%m/%d")
+    run_id = urllib.parse.quote_plus(kwargs['run_id'])
+    upload_date = kwargs['logical_date'].strftime("%Y-%m-%d %H:%M:%S")
+
+    raw_path = Variable.get("RawPath")
+    white_list = Variable.get("WhiteList",default_var=None)
+    black_list = Variable.get("BlackList",default_var=None)
+    upload_path = f'{raw_path}/{execution_date}/'
+    system_name = Variable.get("SystemName")
+    last_upload_date = Variable.get("LastUploadDate")
+    
+    db_conn = BaseHook.get_connection(MSSQL_CONNECTION_NAME)
+    bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
+
+    parameters = {"RawPath": raw_path,
+                  "WhiteList": white_list,
+                  "BlackList": black_list,
+                  "MaintenancePathPrefix":"{}{}{}_{}_".format(raw_path,"/#MAINTENANCE/",ds,run_id),
+                  "BcpParameters": bcp_parameters,
+                  "UploadPath": upload_path,
+                  "RunId":run_id,
+                  "SystemName":system_name,
+                  "LastUploadDate":last_upload_date,
+                  "CurrentUploadDate":upload_date,
+                  "MaintenancePath":"{}{}".format(raw_path,"/#MAINTENANCE/"),
+                  }
+    print(parameters)
+    return parameters
+
+
+with DAG(
+    dag_id='jupiter_raw_qc',
+    schedule_interval=None,
+    start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
+    catchup=False,
+    tags=["jupiter", "dev"],
+    render_template_as_native_obj=True,
+) as dag:
+# Get dag parameters from vault    
+    parameters = get_parameters()
