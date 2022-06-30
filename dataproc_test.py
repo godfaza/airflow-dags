@@ -29,8 +29,8 @@ with DAG(
     create_pyspark_job = DataprocCreatePysparkJobOperator(
         task_id='create_pyspark_job',
         cluster_id='c9qc9m3jccl8v7vigq10',
-       main_python_file_uri='hdfs:///user/hive/warehouse/src/JUPITER_ROLLING_VOLUMES_HDFS_FDM.py',
-#         main_python_file_uri='s3a://jupiter-app-test-storage/src/JUPITER_ROLLING_VOLUMES_HDFS_FDM.py',
+#        main_python_file_uri='hdfs:///user/hive/warehouse/src/JUPITER_ROLLING_VOLUMES_HDFS_FDM.py',
+        main_python_file_uri='s3a://jupiter-app-test-storage/src/dataproc/JUPITER/MAIN.py',
         file_uris=[
             's3a://data-proc-public/jobs/sources/data/config.json',
         ],
