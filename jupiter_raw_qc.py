@@ -61,6 +61,8 @@ def get_parameters(**kwargs):
     upload_date = kwargs['logical_date'].strftime("%Y-%m-%d %H:%M:%S")
 
     raw_path = Variable.get("RawPath")
+    process_path = Variable.get("ProcessPath")
+    output_path = Variable.get("OutputPath")
     white_list = Variable.get("WhiteList",default_var=None)
     black_list = Variable.get("BlackList",default_var=None)
     upload_path = f'{raw_path}/{execution_date}/'
@@ -71,6 +73,8 @@ def get_parameters(**kwargs):
     bcp_parameters = '-S {} -d {} -U {} -P {}'.format(db_conn.host, db_conn.schema, db_conn.login, db_conn.password)
 
     parameters = {"RawPath": raw_path,
+                  "ProcessPath": process_path,
+                  "OutputPath": output_path,
                   "WhiteList": white_list,
                   "BlackList": black_list,
                   "MaintenancePathPrefix":"{}{}{}_{}_".format(raw_path,"/#MAINTENANCE/",ds,run_id),
