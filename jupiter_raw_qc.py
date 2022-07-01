@@ -103,7 +103,7 @@ def save_parameters(parameters:dict):
     conn = hdfs_hook.get_conn()
     conn.upload(parameters_file_path,temp_file_path,overwrite=True)
     
-    return {"MaintenancePathPrefix":dict["MaintenancePathPrefix"],"ProcessDate":dict["ProcessDate"]}
+    return {"MaintenancePathPrefix":parameters["MaintenancePathPrefix"],"ProcessDate":parameters["ProcessDate"]}
 
 
 with DAG(
