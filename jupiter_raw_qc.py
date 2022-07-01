@@ -90,7 +90,7 @@ def save_parameters(parameters:dict):
     parameters_file_path=f'{parameters["MaintenancePathPrefix"]}{PARAMETERS_FILE}'
 
     temp_file_path =f'/tmp/{PARAMETERS_FILE}'
-    df = pd.DataFrame([parameters])
+    df = pd.DataFrame(parameters,columns=['Key', 'Value'])
     df.to_csv(temp_file_path, index=False, sep=CSV_SEPARATOR)
     
     hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
