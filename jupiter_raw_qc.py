@@ -91,7 +91,7 @@ def get_parameters(**kwargs):
     print(parameters)
     return parameters
 
-@task
+@task(task_id='save_parameters')
 def save_parameters(parameters:dict):
     parameters_file_path=f'{parameters["MaintenancePathPrefix"]}{PARAMETERS_FILE}'
 
@@ -132,7 +132,7 @@ with DAG(
 #             's3a://data-proc-public/jobs/sources/data/country-codes.csv.zip',
 #         ],
         args=[
-            f'{save_parameters}',
+            f'{ti.xcom_pull(task_ids="save_parameters")}',
         ],
 #         jar_file_uris=[
 #             's3a://data-proc-public/jobs/sources/java/dataproc-examples-1.0.jar',
