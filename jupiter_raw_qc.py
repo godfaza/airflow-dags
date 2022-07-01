@@ -33,6 +33,7 @@ VAULT_CONNECTION_NAME = 'vault_default'
 AVAILABILITY_ZONE_ID = 'ru-central1-b'
 S3_BUCKET_NAME_FOR_JOB_LOGS = 'jupiter-app-test-storage'
 BCP_SEPARATOR = '0x01'
+CSV_SEPARATOR = '\u0001'
 
 MONITORING_DETAIL_DIR_PREFIX = 'MONITORING_DETAIL.CSV'
 EXTRACT_ENTITIES_AUTO_FILE = 'EXTRACT_ENTITIES_AUTO.csv'
@@ -90,7 +91,7 @@ def save_parameters(parameters:dict):
 
     temp_file_path =f'/tmp/{PARAMETERS_FILE}'
     df = pd.DataFrame([parameters])
-    df.to_csv(temp_file_path, index=False)
+    df.to_csv(temp_file_path, index=False, sep=CSV_SEPARATOR)
     
     hdfs_hook = WebHDFSHook(HDFS_CONNECTION_NAME)
     conn = hdfs_hook.get_conn()
